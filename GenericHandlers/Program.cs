@@ -67,12 +67,12 @@ app.Run();
 // }
 // }
 
-//{
-// "source": "string",
-// "detailType": "MultipliedEvent",
-// "detail": {
-//     "body":{
-//         "Value1":4
-//     }
-// }
-// }
+// {
+//  "source": "string",
+//  "detailType": "MultipliedEvent",
+//  "detail": {
+//      "body":{
+//          "Value1":4
+//      }
+//  }
+//  }
