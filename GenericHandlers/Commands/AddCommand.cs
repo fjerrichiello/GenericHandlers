@@ -3,4 +3,4 @@ using Common.Messaging;
 
 namespace GenericHandlers.Commands;
 
-public record AddCommand() : Message;
+public record AddCommand(int? Value1) : Message;

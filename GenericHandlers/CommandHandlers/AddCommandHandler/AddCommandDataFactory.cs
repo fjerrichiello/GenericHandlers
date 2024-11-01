@@ -2,7 +2,7 @@
 using Common.Messaging;
 using GenericHandlers.Commands;
 
-namespace GenericHandlers.AddCommandHandler;
+namespace GenericHandlers.CommandHandlers.AddCommandHandler;
 
 public class
     AddCommandDataFactory : IDataFactory<AddCommand, CommandMetadata, AddCommandUnverifiedData, AddCommandVerifiedData>

@@ -1,4 +1,8 @@
+using Common;
+using Common.Messaging;
 using GenericHandlers;
+using GenericHandlers.CommandHandlers.AddCommandHandler;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddEventHandlersAndNecessaryWork(typeof(AddCommandOperation));
 
 var app = builder.Build();
 
@@ -18,32 +24,55 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+app.MapPost("/command-events",
+        async ([FromBody] MessageRequest request, IServiceProvider _provider) =>
+        {
+            var orchestrator = _provider.GetRequiredKeyedService<IMessageOrchestrator>(request.DetailType);
 
-app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast")
+            await orchestrator.ProcessAsync(request);
+        })
+    .WithName("TestOrchestrator")
     .WithOpenApi();
 
 app.Run();
 
-namespace GenericHandlers
-{
-    record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-    {
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-    }
-}
+//{
+// "source": "string",
+// "detailType": "AddCommand",
+// "detail": {
+//     "body":{
+//         "Value1":1
+//     }
+// }
+// }
+
+
+//{
+// "source": "string",
+// "detailType": "RemoveCommand",
+// "detail": {
+//     "body":{
+//         "Value1":2
+//     }
+// }
+// }
+
+//{
+// "source": "string",
+// "detailType": "DividedEvent",
+// "detail": {
+//     "body":{
+//         "Value1":3
+//     }
+// }
+// }
+
+//{
+// "source": "string",
+// "detailType": "MultipliedEvent",
+// "detail": {
+//     "body":{
+//         "Value1":4
+//     }
+// }
+// }

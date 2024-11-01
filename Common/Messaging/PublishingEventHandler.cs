@@ -5,21 +5,17 @@ using Microsoft.Extensions.Logging;
 
 namespace Common.Messaging;
 
-public class EventHandlerWithPublisher<TMessage, TUnverifiedData, TVerifiedData,
-    TValidationFailedEvent, TFailedEvent>(
+public class PublishingEventHandler<TMessage, TUnverifiedData, TVerifiedData>(
     IDataFactory<TMessage,
         EventMetadata, TUnverifiedData, TVerifiedData> _dataFactory,
-    IMessageVerifier<TMessage, EventMetadata, TUnverifiedData,
-        TValidationFailedEvent> _verifier,
-    IEventPublishingOperation<TMessage, TVerifiedData> _service,
+    IEventVerifier<TMessage, TUnverifiedData> _verifier,
+    IEventPublishingOperation<TMessage, EventMetadata, TVerifiedData> _service,
     IEventPublisher _eventPublisher,
-    ILogger<CommandHandler<TMessage, TUnverifiedData, TVerifiedData, TValidationFailedEvent, TFailedEvent>>
+    ILogger<PublishingEventHandler<TMessage, TUnverifiedData, TVerifiedData>>
         _logger)
     : IMessageContainerHandler<TMessage,
         EventMetadata>
     where TMessage : Message
-    where TValidationFailedEvent : Message
-    where TFailedEvent : Message
 {
     public async Task HandleAsync(MessageContainer<TMessage, EventMetadata> container)
     {
@@ -34,8 +30,6 @@ public class EventHandlerWithPublisher<TMessage, TUnverifiedData, TVerifiedData,
             var validationResult = _verifier.Validate(verificationParameters);
             if (!validationResult.IsValid)
             {
-                await _eventPublisher.PublishAsync(container,
-                    _verifier.CreateValidationFailedEvent(verificationParameters, validationResult));
                 return;
             }
 

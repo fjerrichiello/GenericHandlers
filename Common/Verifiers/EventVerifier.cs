@@ -4,10 +4,10 @@ using FluentValidation.Results;
 
 namespace Common.Verifiers;
 
-public abstract class EventVerifier<TMessage, TUnverifiedData> :
-    AbstractValidator<MessageVerificationParameters<TMessage, EventMetadata, TUnverifiedData>>,
-    IEventVerifier<TMessage, TUnverifiedData>
-    where TMessage : Message
+public abstract class EventVerifier<TEvent, TUnverifiedData> :
+    AbstractValidator<MessageVerificationParameters<TEvent, EventMetadata, TUnverifiedData>>,
+    IEventVerifier<TEvent, TUnverifiedData>
+    where TEvent : Message
 {
     protected EventVerifier()
     {
@@ -16,8 +16,8 @@ public abstract class EventVerifier<TMessage, TUnverifiedData> :
 
     protected abstract void ValidationRules();
 
-    ValidationResult IEventVerifier<TMessage, TUnverifiedData>.Validate(
-        MessageVerificationParameters<TMessage, EventMetadata, TUnverifiedData> parameters)
+    ValidationResult IEventVerifier<TEvent, TUnverifiedData>.Validate(
+        MessageVerificationParameters<TEvent, EventMetadata, TUnverifiedData> parameters)
     {
         return this.Validate(parameters, options => options.IncludeRuleSets("Validate"));
     }

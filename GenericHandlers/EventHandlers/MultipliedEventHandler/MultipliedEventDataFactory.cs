@@ -1,0 +1,25 @@
+﻿using Common.DataFactory;
+using Common.Events.MultipliedCommand;
+using Common.Messaging;
+using GenericHandlers.Commands;
+
+namespace GenericHandlers.EventHandlers.MultipliedEventHandler;
+
+public class
+    MultipliedEventDataFactory : IDataFactory<MultipliedEvent, CommandMetadata, MultipliedEventUnverifiedData,
+    MultipliedEventVerifiedData>
+{
+    public async Task<MultipliedEventUnverifiedData> GetDataAsync(
+        MessageContainer<MultipliedEvent, CommandMetadata> container)
+    {
+        await Task.Delay(250);
+        return new MultipliedEventUnverifiedData(Random.Shared.Next(100));
+    }
+
+    public MultipliedEventVerifiedData GetVerifiedData(MultipliedEventUnverifiedData unverifiedData)
+    {
+        ArgumentNullException.ThrowIfNull(unverifiedData.Value1);
+
+        return new MultipliedEventVerifiedData(unverifiedData.Value1.Value);
+    }
+}

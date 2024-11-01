@@ -1,5 +1,5 @@
 ﻿using Common.Messaging;
 
-namespace GenericHandlers.Events.AddCommand;
+namespace Common.Events.AddCommand;
 
 public record AddedEvent(int Value) : Message;

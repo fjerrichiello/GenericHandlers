@@ -12,11 +12,17 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Common.Events\Common.Events.csproj" />
       <ProjectReference Include="..\Common\Common.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Common\Common.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="CommandHandlers\" />
+      <Folder Include="Events\" />
     </ItemGroup>
 
 </Project>

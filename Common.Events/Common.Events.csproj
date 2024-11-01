@@ -7,8 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentValidation" Version="11.10.0"/>
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1"/>
-        <PackageReference Include="Dumpify" Version="0.6.6"/>
+      <ProjectReference Include="..\Common\Common.csproj" />
     </ItemGroup>
+
 </Project>

@@ -1,9 +1,9 @@
-﻿using Common.Messaging;
+﻿using Common.Events.AddCommand;
+using Common.Messaging;
 using Common.Operations;
 using GenericHandlers.Commands;
-using GenericHandlers.Events.AddCommand;
 
-namespace GenericHandlers.AddCommandHandler;
+namespace GenericHandlers.CommandHandlers.AddCommandHandler;
 
 public class AddCommandOperation : IPublishingOperation<AddCommand, CommandMetadata, AddCommandVerifiedData,
     AddCommandFailedEvent>
