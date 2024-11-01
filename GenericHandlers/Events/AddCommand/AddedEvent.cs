@@ -2,4 +2,4 @@
 
 namespace GenericHandlers.Events.AddCommand;
 
-public record AddedEvent : Message;
+public record AddedEvent(int Value) : Message;
