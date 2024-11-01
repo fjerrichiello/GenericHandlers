@@ -7,11 +7,11 @@ using GenericHandlers.Commands;
 namespace GenericHandlers.EventHandlers.DividedEventHandler;
 
 public class
-    DividedEventDataFactory : IDataFactory<DividedEvent, CommandMetadata, DividedEventUnverifiedData,
+    DividedEventDataFactory : IDataFactory<DividedEvent, EventMetadata, DividedEventUnverifiedData,
     DividedEventVerifiedData>
 {
     public async Task<DividedEventUnverifiedData> GetDataAsync(
-        MessageContainer<DividedEvent, CommandMetadata> container)
+        MessageContainer<DividedEvent, EventMetadata> container)
     {
         await Task.Delay(250);
         return new DividedEventUnverifiedData(Random.Shared.Next(100));

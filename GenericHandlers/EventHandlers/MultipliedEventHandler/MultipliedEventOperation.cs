@@ -12,5 +12,6 @@ public class MultipliedEventOperation : IEventOperation<MultipliedEvent, EventMe
         await Task.Delay(250);
 
         //Do Work
+        Console.WriteLine("Operated");
     }
 }
