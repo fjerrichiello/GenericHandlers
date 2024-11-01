@@ -1,3 +1,3 @@
-namespace Common;
+namespace Common.Messaging;
 
 public record EventMetadata : MessageMetadata;

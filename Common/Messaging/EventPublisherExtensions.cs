@@ -1,4 +1,4 @@
-namespace Common;
+namespace Common.Messaging;
 
 public static class EventPublisherExtensions
 {
