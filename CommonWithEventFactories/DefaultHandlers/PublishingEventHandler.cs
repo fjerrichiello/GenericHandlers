@@ -1,16 +1,18 @@
-﻿using Common.DataFactory;
-using Common.Operations;
-using Common.Verifiers;
+﻿using CommonWithEventFactories.DataFactory;
+using CommonWithEventFactories.Messaging;
+using CommonWithEventFactories.Operations;
+using CommonWithEventFactories.Verifiers;
 using Microsoft.Extensions.Logging;
 
-namespace Common.Messaging;
+namespace CommonWithEventFactories.DefaultHandlers;
 
-public class ConventionalEventHandler<TMessage, TUnverifiedData, TVerifiedData>(
+public class PublishingEventHandler<TMessage, TUnverifiedData, TVerifiedData>(
     IDataFactory<TMessage,
         EventMetadata, TUnverifiedData, TVerifiedData> _dataFactory,
     IEventVerifier<TMessage, TUnverifiedData> _verifier,
-    IEventOperation<TMessage, EventMetadata, TVerifiedData> _service,
-    ILogger<ConventionalEventHandler<TMessage, TUnverifiedData, TVerifiedData>>
+    IEventPublishingOperation<TMessage, EventMetadata, TVerifiedData> _operation,
+    IEventPublisher _eventPublisher,
+    ILogger<PublishingEventHandler<TMessage, TUnverifiedData, TVerifiedData>>
         _logger)
     : IMessageContainerHandler<TMessage,
         EventMetadata>
@@ -34,7 +36,7 @@ public class ConventionalEventHandler<TMessage, TUnverifiedData, TVerifiedData>(
 
             var verifiedData = _dataFactory.GetVerifiedData(unverifiedData);
 
-            await _service.ExecuteAsync(container, verifiedData);
+            await _operation.ExecuteAsync(container, verifiedData, _eventPublisher);
         }
         catch (Exception e)
         {

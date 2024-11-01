@@ -1,14 +1,15 @@
-﻿using Common.DataFactory;
-using Common.DefaultHandlers;
-using Common.Messaging;
-using Common.Operations;
-using Common.Verifiers;
+﻿using CommonWithEventFactories.DataFactory;
+using CommonWithEventFactories.DefaultHandlers;
+using CommonWithEventFactories.EventFactory;
+using CommonWithEventFactories.Messaging;
+using CommonWithEventFactories.Operations;
+using CommonWithEventFactories.Verifiers;
 using Dumpify;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Common;
+namespace CommonWithEventFactories;
 
-public static class Registration
+public static class RegistrationWithEventFactory
 {
     private static readonly Type GenericAuthorizedCommandHandlerType =
         typeof(AuthorizedCommandHandler<,,,,,>);
@@ -27,8 +28,8 @@ public static class Registration
     private static readonly Type MessageContainerHandlerType = typeof(IMessageContainerHandler<,>);
     private static readonly Type DataFactoryType = typeof(IDataFactory<,,,>);
 
-    private static readonly Type AuthorizedCommandVerifierType = typeof(IAuthorizedCommandVerifier<,,,>);
-    private static readonly Type MessageVerifierType = typeof(IMessageVerifier<,,,>);
+    private static readonly Type AuthorizedCommandVerifierType = typeof(IAuthorizedCommandVerifier<,>);
+    private static readonly Type MessageVerifierType = typeof(IMessageVerifier<,,>);
     private static readonly Type EventVerifierType = typeof(IEventVerifier<,>);
 
     private static readonly IEnumerable<Type> VerifierTypes =
@@ -47,11 +48,14 @@ public static class Registration
         EventPublishingOperationType
     ];
 
-    public static IServiceCollection AddEventHandlersAndNecessaryWork(this IServiceCollection services,
+    public static IServiceCollection AddEventHandlersWithEventFactoryAndNecessaryWork(this IServiceCollection services,
         params Type[] sourceTypes)
     {
         // ValidatorOptions.Global.DisplayNameResolver = (type, member, expression) => member?.Name.ToSnakeCase();
         services.AddSingleton(typeof(MessageContainerMapper<,>));
+
+        services.AddSingleton(typeof(IAuthorizedCommandEventFactory<,>), typeof(AuthorizedCommandEventFactory<,>));
+        services.AddSingleton(typeof(ICommandEventFactory<>), typeof(CommandEventFactory<>));
 
         var registrations = sourceTypes.Select(sourceType => sourceType.Assembly).Distinct()
             .SelectMany(assembly => assembly.GetTypes())

@@ -1,16 +1,19 @@
-﻿using Common.DataFactory;
-using Common.Operations;
-using Common.Verifiers;
+﻿using CommonWithEventFactories.DataFactory;
+using CommonWithEventFactories.EventFactory;
+using CommonWithEventFactories.Messaging;
+using CommonWithEventFactories.Operations;
+using CommonWithEventFactories.Verifiers;
 using Microsoft.Extensions.Logging;
 
-namespace Common.Messaging;
+namespace CommonWithEventFactories.DefaultHandlers;
 
 public class AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifiedData, TAuthorizationFailedEvent,
     TValidationFailedEvent, TFailedEvent>(
     IDataFactory<TMessage,
         CommandMetadata, TUnverifiedData, TVerifiedData> _dataFactory,
-    IAuthorizedCommandVerifier<TMessage, TUnverifiedData, TAuthorizationFailedEvent, TValidationFailedEvent> _verifier,
-    IPublishingOperation<TMessage, CommandMetadata, TVerifiedData, TFailedEvent> _service,
+    IAuthorizedCommandVerifier<TMessage, TUnverifiedData> _verifier,
+    IAuthorizedCommandEventFactory<TAuthorizationFailedEvent, TValidationFailedEvent> _eventFactory,
+    IPublishingOperation<TMessage, CommandMetadata, TVerifiedData, TFailedEvent> _operation,
     IEventPublisher _eventPublisher,
     ILogger<AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifiedData, TAuthorizationFailedEvent,
         TValidationFailedEvent, TFailedEvent>> _logger)
@@ -35,7 +38,7 @@ public class AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifiedData, 
             if (!authorizationResult.IsAuthorized)
             {
                 await _eventPublisher.PublishAsync(container,
-                    _verifier.CreateAuthorizationFailedEvent(verificationParameters, authorizationResult));
+                    _eventFactory.CreateFailedAuthorizationEvent(authorizationResult));
                 return;
             }
 
@@ -43,18 +46,18 @@ public class AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifiedData, 
             if (!validationResult.IsValid)
             {
                 await _eventPublisher.PublishAsync(container,
-                    _verifier.CreateValidationFailedEvent(verificationParameters, validationResult));
+                    _eventFactory.CreateFailedValidationEvent(validationResult));
                 return;
             }
 
             var verifiedData = _dataFactory.GetVerifiedData(unverifiedData);
 
-            await _service.ExecuteAsync(container, verifiedData, _eventPublisher);
+            await _operation.ExecuteAsync(container, verifiedData, _eventPublisher);
         }
         catch (Exception e)
         {
             _logger.LogError(e.Message);
-            await _eventPublisher.PublishAsync(container, _service.CreateFailedEvent(container, e));
+            await _eventPublisher.PublishAsync(container, _operation.CreateFailedEvent(container, e));
         }
     }
 }

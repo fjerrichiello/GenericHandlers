@@ -1,0 +1,3 @@
+﻿namespace GenericHandlersWithEventFactories.CommandHandlers.RemoveCommandHandler;
+
+public record RemoveCommandVerifiedData(int Value1);

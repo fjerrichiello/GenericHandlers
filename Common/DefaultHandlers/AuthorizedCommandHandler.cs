@@ -1,23 +1,24 @@
 ﻿using Common.DataFactory;
+using Common.Messaging;
 using Common.Operations;
 using Common.Verifiers;
 using Microsoft.Extensions.Logging;
 
-namespace Common.Messaging;
+namespace Common.DefaultHandlers;
 
-public class CommandHandler<TMessage, TUnverifiedData, TVerifiedData,
+public class AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifiedData, TAuthorizationFailedEvent,
     TValidationFailedEvent, TFailedEvent>(
     IDataFactory<TMessage,
         CommandMetadata, TUnverifiedData, TVerifiedData> _dataFactory,
-    IMessageVerifier<TMessage, CommandMetadata, TUnverifiedData,
-        TValidationFailedEvent> _verifier,
-    IPublishingOperation<TMessage, CommandMetadata, TVerifiedData, TFailedEvent> _service,
+    IAuthorizedCommandVerifier<TMessage, TUnverifiedData, TAuthorizationFailedEvent, TValidationFailedEvent> _verifier,
+    IPublishingOperation<TMessage, CommandMetadata, TVerifiedData, TFailedEvent> _operation,
     IEventPublisher _eventPublisher,
-    ILogger<CommandHandler<TMessage, TUnverifiedData, TVerifiedData, TValidationFailedEvent, TFailedEvent>>
-        _logger)
+    ILogger<AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifiedData, TAuthorizationFailedEvent,
+        TValidationFailedEvent, TFailedEvent>> _logger)
     : IMessageContainerHandler<TMessage,
         CommandMetadata>
     where TMessage : Message
+    where TAuthorizationFailedEvent : Message
     where TValidationFailedEvent : Message
     where TFailedEvent : Message
 {
@@ -31,6 +32,14 @@ public class CommandHandler<TMessage, TUnverifiedData, TVerifiedData,
                 new MessageVerificationParameters<TMessage, CommandMetadata, TUnverifiedData>(container,
                     unverifiedData);
 
+            var authorizationResult = _verifier.Authorize(verificationParameters);
+            if (!authorizationResult.IsAuthorized)
+            {
+                await _eventPublisher.PublishAsync(container,
+                    _verifier.CreateAuthorizationFailedEvent(verificationParameters, authorizationResult));
+                return;
+            }
+
             var validationResult = _verifier.Validate(verificationParameters);
             if (!validationResult.IsValid)
             {
@@ -41,12 +50,12 @@ public class CommandHandler<TMessage, TUnverifiedData, TVerifiedData,
 
             var verifiedData = _dataFactory.GetVerifiedData(unverifiedData);
 
-            await _service.ExecuteAsync(container, verifiedData, _eventPublisher);
+            await _operation.ExecuteAsync(container, verifiedData, _eventPublisher);
         }
         catch (Exception e)
         {
             _logger.LogError(e.Message);
-            await _eventPublisher.PublishAsync(container, _service.CreateFailedEvent(container, e));
+            await _eventPublisher.PublishAsync(container, _operation.CreateFailedEvent(container, e));
         }
     }
 }

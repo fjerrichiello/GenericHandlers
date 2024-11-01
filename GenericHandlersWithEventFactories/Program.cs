@@ -1,6 +1,6 @@
-using Common;
-using Common.Messaging;
-using GenericHandlers.CommandHandlers.AddCommandHandler;
+using CommonWithEventFactories;
+using CommonWithEventFactories.Messaging;
+using GenericHandlersWithEventFactories.CommandHandlers.AddCommandHandler;
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,8 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddEventHandlersAndNecessaryWork(typeof(AddCommandOperation));
-// builder.Services.AddEventHandlersWithEventFactoryAndNecessaryWork(typeof(AddCommandOperation));
+builder.Services.AddEventHandlersWithEventFactoryAndNecessaryWork(typeof(AddCommandOperation));
 
 var app = builder.Build();
 
@@ -74,5 +73,4 @@ app.Run();
 //      "body":{
 //          "Value1":4
 //      }
-//  }
 //  }

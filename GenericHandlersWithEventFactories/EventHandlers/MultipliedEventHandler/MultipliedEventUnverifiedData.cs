@@ -1,0 +1,3 @@
+﻿namespace GenericHandlersWithEventFactories.EventHandlers.MultipliedEventHandler;
+
+public record MultipliedEventUnverifiedData(int? Value1);

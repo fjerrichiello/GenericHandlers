@@ -6,6 +6,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Events", "Common.Events\Common.Events.csproj", "{A4FF26F8-1050-44F7-ABF7-06776F68AE50}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonWithEventFactories", "CommonWithEventFactories\CommonWithEventFactories.csproj", "{85200AA3-9A9E-4F56-B93D-DAF2F606E8F2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericHandlersWithEventFactories", "GenericHandlersWithEventFactories\GenericHandlersWithEventFactories.csproj", "{E3CA0F19-3C44-4A3F-94D9-5667CD9B6D02}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonWithEventFactories.Events", "CommonWithEventFactories.Events\CommonWithEventFactories.Events.csproj", "{DEC4D5E0-D7AB-4477-833A-404353BD2A85}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +30,17 @@ Global
 		{A4FF26F8-1050-44F7-ABF7-06776F68AE50}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A4FF26F8-1050-44F7-ABF7-06776F68AE50}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A4FF26F8-1050-44F7-ABF7-06776F68AE50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{85200AA3-9A9E-4F56-B93D-DAF2F606E8F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85200AA3-9A9E-4F56-B93D-DAF2F606E8F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85200AA3-9A9E-4F56-B93D-DAF2F606E8F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85200AA3-9A9E-4F56-B93D-DAF2F606E8F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3CA0F19-3C44-4A3F-94D9-5667CD9B6D02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3CA0F19-3C44-4A3F-94D9-5667CD9B6D02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3CA0F19-3C44-4A3F-94D9-5667CD9B6D02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3CA0F19-3C44-4A3F-94D9-5667CD9B6D02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEC4D5E0-D7AB-4477-833A-404353BD2A85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEC4D5E0-D7AB-4477-833A-404353BD2A85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEC4D5E0-D7AB-4477-833A-404353BD2A85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEC4D5E0-D7AB-4477-833A-404353BD2A85}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

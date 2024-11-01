@@ -1,0 +1,3 @@
+﻿namespace GenericHandlersWithEventFactories.EventHandlers.DividedEventHandler;
+
+public record DividedEventVerifiedData(int Value1);
