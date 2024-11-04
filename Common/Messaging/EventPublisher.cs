@@ -16,7 +16,8 @@ public class EventPublisher : IEventPublisher
                 return new
                 {
                     Data = data?.Reason,
-                    DetailType = typeof(TCommand).Name + "AuthorizationFailedEvent"
+                    DetailType = typeof(TCommand).Name + "AuthorizationFailedEvent",
+                    Tags = data?.Tags.Concat(["authorization"])
                 };
             }).ToList().Dump();
         }
@@ -29,7 +30,8 @@ public class EventPublisher : IEventPublisher
                 return new
                 {
                     Data = data?.Errors,
-                    DetailType = typeof(TCommand).Name + "ValidationFailedEvent"
+                    DetailType = typeof(TCommand).Name + "ValidationFailedEvent",
+                    Tags = data?.Tags.Concat(["validation"])
                 };
             }).ToList().Dump();
         }

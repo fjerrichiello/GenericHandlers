@@ -36,7 +36,7 @@ public class AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifiedData, 
             if (!authorizationResult.IsAuthorized)
             {
                 await _eventPublisher.PublishAsync(container,
-                    new AuthorizationFailedMessage(authorizationResult.ErrorMessages));
+                    new AuthorizationFailedMessage(authorizationResult.ErrorMessages, typeof(TFailedEvent)));
                 return;
             }
 
@@ -44,7 +44,7 @@ public class AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifiedData, 
             if (!validationResult.IsValid)
             {
                 await _eventPublisher.PublishAsync(container,
-                    new ValidationFailedMessage(validationResult.ToDictionary()));
+                    new ValidationFailedMessage(validationResult.ToDictionary(), typeof(TFailedEvent)));
                 return;
             }
 

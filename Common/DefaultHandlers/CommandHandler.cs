@@ -36,7 +36,7 @@ public class CommandHandler<TMessage, TUnverifiedData, TVerifiedData,
             if (!validationResult.IsValid)
             {
                 await _eventPublisher.PublishAsync(container,
-                    new ValidationFailedMessage(validationResult.ToDictionary()));
+                    new ValidationFailedMessage(validationResult.ToDictionary(), typeof(TFailedEvent)));
                 return;
             }
 
