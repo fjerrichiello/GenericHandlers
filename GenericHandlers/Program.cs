@@ -36,15 +36,15 @@ app.MapPost("/command-events",
 
 app.Run();
 
-//{
-// "source": "string",
-// "detailType": "AddCommand",
-// "detail": {
-//     "body":{
-//         "Value1":1
-//     }
-// }
-// }
+// {
+//  "source": "string",
+//  "detailType": "AddCommand",
+//  "detail": {
+//      "body":{
+//          "Value1":1
+//      }
+//  }
+//  }
 
 
 //{

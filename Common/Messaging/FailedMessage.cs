@@ -1,3 +1,3 @@
 ﻿namespace Common.Messaging;
 
-public abstract record FailedMessage(string Reason) : Message;
+public record FailedMessage(string Reason) : Message;

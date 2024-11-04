@@ -19,7 +19,7 @@ public class AddCommandVerifier : AuthorizedCommandVerifier<AddCommand, AddComma
     protected override void ValidationRules()
     {
         RuleFor(x => x.DataFactoryResult.Value1)
-            .GreaterThan(0);
+            .LessThan(0);
     }
 
     public override AddCommandAuthorizationFailedEvent CreateAuthorizationFailedEvent(

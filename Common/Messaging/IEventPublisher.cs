@@ -13,4 +13,5 @@ public interface IEventPublisher
         IEnumerable<TEvent> eventBodies)
         where TSourceEvent : Message
         where TEvent : Message;
+    
 }

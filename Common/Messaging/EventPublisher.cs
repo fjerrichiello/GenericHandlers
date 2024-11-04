@@ -7,8 +7,39 @@ public class EventPublisher : IEventPublisher
     public async Task PublishAsync<TCommand, TEvent>(MessageContainer<TCommand, CommandMetadata> commandContainer,
         IEnumerable<TEvent> events) where TCommand : Message where TEvent : Message
     {
+        var enumerable = events.ToList();
+        if (enumerable.First() is AuthorizationFailedMessage)
+        {
+            enumerable.Select(e =>
+            {
+                var data = e as AuthorizationFailedMessage;
+                return new
+                {
+                    Data = data?.Reason,
+                    DetailType = typeof(TCommand).Name + "AuthorizationFailedEvent"
+                };
+            }).ToList().Dump();
+        }
+
+        if (enumerable.First() is ValidationFailedMessage)
+        {
+            enumerable.Select(e =>
+            {
+                var data = e as ValidationFailedMessage;
+                return new
+                {
+                    Data = data?.Errors,
+                    DetailType = typeof(TCommand).Name + "ValidationFailedEvent"
+                };
+            }).ToList().Dump();
+        }
+        else
+        {
+            enumerable.ToList().Dump();
+        }
+
+
         await Task.Delay(250);
-        events.ToList().Dump();
     }
 
     public async Task PublishAsync<TSourceEvent, TEvent>(MessageContainer<TSourceEvent, EventMetadata> eventContainer,

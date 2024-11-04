@@ -1,5 +1,4 @@
 ﻿using Common.DataFactory;
-using Common.EventFactory;
 using Common.Messaging;
 using Common.Operations;
 using Common.Verifiers;
@@ -14,7 +13,6 @@ public class CommandHandler<TMessage, TUnverifiedData, TVerifiedData,
     IMessageVerifier<TMessage, CommandMetadata, TUnverifiedData,
         TValidationFailedEvent> _verifier,
     IPublishingOperation<TMessage, CommandMetadata, TVerifiedData, TFailedEvent> _operation,
-    ICommandEventFactory<TValidationFailedEvent> _eventFactory,
     IEventPublisher _eventPublisher,
     ILogger<CommandHandler<TMessage, TUnverifiedData, TVerifiedData, TValidationFailedEvent, TFailedEvent>>
         _logger)
@@ -38,7 +36,7 @@ public class CommandHandler<TMessage, TUnverifiedData, TVerifiedData,
             if (!validationResult.IsValid)
             {
                 await _eventPublisher.PublishAsync(container,
-                    _eventFactory.CreateFailedValidationEvent(validationResult));
+                    new ValidationFailedMessage(validationResult.ToDictionary()));
                 return;
             }
 
