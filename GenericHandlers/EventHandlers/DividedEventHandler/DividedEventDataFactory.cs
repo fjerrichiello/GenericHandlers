@@ -1,6 +1,5 @@
 ﻿using Common.DataFactory;
 using Common.Events.DividedCommand;
-using Common.Events.MultipliedCommand;
 using Common.Messaging;
 using GenericHandlers.Commands;
 

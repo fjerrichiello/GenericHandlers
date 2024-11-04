@@ -1,4 +1,4 @@
-﻿using Common.Events.MultipliedCommand;
+﻿using Common.Events.MultiplyCommand;
 using Common.Messaging;
 using Common.Verifiers;
 using FluentValidation;

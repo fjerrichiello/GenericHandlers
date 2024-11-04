@@ -34,7 +34,7 @@ public class CommandHandler<TMessage, TUnverifiedData, TVerifiedData, TFailedEve
             if (!validationResult.IsValid)
             {
                 await _eventPublisher.PublishAsync(container,
-                    new ValidationFailedMessage(validationResult.ToDictionarySnakeCase()));
+                    new ValidationFailedMessageHolder(validationResult.ToDictionarySnakeCase(), typeof(TFailedEvent)));
                 return;
             }
 
