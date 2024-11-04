@@ -1,9 +1,11 @@
 ﻿using Common.DataFactory;
 using Common.DefaultHandlers;
+using Common.Helpers;
 using Common.Messaging;
 using Common.Operations;
 using Common.Verifiers;
 using Dumpify;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Common;
@@ -50,7 +52,8 @@ public static class Registration
     public static IServiceCollection AddEventHandlersAndNecessaryWork(this IServiceCollection services,
         params Type[] sourceTypes)
     {
-        // ValidatorOptions.Global.DisplayNameResolver = (type, member, expression) => member?.Name.ToSnakeCase();
+        ValidatorOptions.Global.DisplayNameResolver = (type, member, expression) => member?.Name.ToSnakeCase();
+        
         services.AddSingleton(typeof(MessageContainerMapper<,>));
 
         var registrations = sourceTypes.Select(sourceType => sourceType.Assembly).Distinct()

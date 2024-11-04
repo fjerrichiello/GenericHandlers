@@ -1,4 +1,5 @@
 ﻿using Common.DataFactory;
+using Common.Helpers;
 using Common.Messaging;
 using Common.Operations;
 using Common.Verifiers;
@@ -44,7 +45,7 @@ public class AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifiedData, 
             if (!validationResult.IsValid)
             {
                 await _eventPublisher.PublishAsync(container,
-                    new ValidationFailedMessage(validationResult.ToDictionary(), typeof(TFailedEvent)));
+                    validationResult.ToValidationFailedMessage(typeof(TFailedEvent)));
                 return;
             }
 

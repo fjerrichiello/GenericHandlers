@@ -1,4 +1,5 @@
-﻿using Common.Messaging;
+﻿using Common.Helpers;
+using Common.Messaging;
 using FluentValidation;
 using FluentValidation.Results;
 

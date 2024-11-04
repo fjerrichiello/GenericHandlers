@@ -20,6 +20,9 @@ public class AddCommandVerifier : AuthorizedCommandVerifier<AddCommand, AddComma
     {
         RuleFor(x => x.DataFactoryResult.Value1)
             .LessThan(0);
+
+        RuleFor(x => x.DataFactoryResult.TestValue3)
+            .NotEmpty();
     }
 
     public override AddCommandAuthorizationFailedEvent CreateAuthorizationFailedEvent(
