@@ -13,10 +13,10 @@ namespace Common;
 public static class Registration
 {
     private static readonly Type GenericAuthorizedCommandHandlerType =
-        typeof(AuthorizedCommandHandler<,,,,,>);
+        typeof(AuthorizedCommandHandler<,,,>);
 
     private static readonly Type GenericCommandHandlerType =
-        typeof(CommandHandler<,,,,>);
+        typeof(CommandHandler<,,,>);
 
     private static readonly Type GenericPublishingEventHandlerType =
         typeof(PublishingEventHandler<,,>);
@@ -29,8 +29,8 @@ public static class Registration
     private static readonly Type MessageContainerHandlerType = typeof(IMessageContainerHandler<,>);
     private static readonly Type DataFactoryType = typeof(IDataFactory<,,,>);
 
-    private static readonly Type AuthorizedCommandVerifierType = typeof(IAuthorizedCommandVerifier<,,,>);
-    private static readonly Type MessageVerifierType = typeof(IMessageVerifier<,,,>);
+    private static readonly Type AuthorizedCommandVerifierType = typeof(IAuthorizedCommandVerifier<,>);
+    private static readonly Type MessageVerifierType = typeof(IMessageVerifier<,,>);
     private static readonly Type EventVerifierType = typeof(IEventVerifier<,>);
 
     private static readonly IEnumerable<Type> VerifierTypes =
@@ -53,7 +53,7 @@ public static class Registration
         params Type[] sourceTypes)
     {
         ValidatorOptions.Global.DisplayNameResolver = (type, member, expression) => member?.Name.ToSnakeCase();
-        
+
         services.AddSingleton(typeof(MessageContainerMapper<,>));
 
         var registrations = sourceTypes.Select(sourceType => sourceType.Assembly).Distinct()
@@ -115,14 +115,13 @@ public static class Registration
             if (IsGenericAuthorizedCommandHandlerType(genericInterfaces))
             {
                 return GenericAuthorizedCommandHandlerType.MakeGenericType(MessageType, UnverifiedDataType,
-                    VerifiedDataType,
-                    AuthorizationFailedEventType, ValidationFailedEventType, FailedEventType);
+                    VerifiedDataType, FailedEventType);
             }
 
             if (IsGenericCommandHandlerType(genericInterfaces))
             {
                 return GenericCommandHandlerType.MakeGenericType(MessageType, UnverifiedDataType, VerifiedDataType,
-                    ValidationFailedEventType, FailedEventType);
+                    FailedEventType);
             }
 
             if (IsGenericPublishingEventHandler(genericInterfaces))
@@ -148,10 +147,6 @@ public static class Registration
 
         private Type VerifiedDataType { get; set; }
 
-        private Type AuthorizationFailedEventType { get; set; }
-
-        private Type ValidationFailedEventType { get; set; }
-
         private Type FailedEventType { get; set; }
 
         public void SetType(Type type)
@@ -164,16 +159,6 @@ public static class Registration
                 VerifiedDataType = genericArguments.Last();
             }
 
-            if (IsAuthorizedCommandVerifierInterface(type))
-            {
-                AuthorizationFailedEventType = genericArguments[^2];
-                ValidationFailedEventType = genericArguments.Last();
-            }
-
-            if (IsMessageVerifierInterface(type))
-            {
-                ValidationFailedEventType = genericArguments.Last();
-            }
 
             if (IsAnyOperationInterface(type))
             {

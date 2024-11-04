@@ -5,13 +5,13 @@ namespace Common.Helpers;
 
 public static class ValidationExtensions
 {
-    public static ValidationFailedMessage ToValidationFailedMessage(this ValidationResult result, Type failedEventType)
+    public static IDictionary<string, string[]> ToDictionarySnakeCase(this ValidationResult result)
     {
-        return new ValidationFailedMessage(result.Errors
+        return result.Errors
             .GroupBy(x => x.PropertyName)
             .ToDictionary(
                 g => g.Key.ToSnakeCase(),
                 g => g.Select(x => x.ErrorMessage).ToArray()
-            ), failedEventType);
+            );
     }
 }

@@ -7,19 +7,11 @@ using GenericHandlers.Commands;
 
 namespace GenericHandlers.CommandHandlers.RemoveCommandHandler;
 
-public class RemoveCommandVerifier : MessageVerifier<RemoveCommand, CommandMetadata, RemoveCommandUnverifiedData,
-    RemoveCommandValidationFailedEvent>
+public class RemoveCommandVerifier : MessageVerifier<RemoveCommand, CommandMetadata, RemoveCommandUnverifiedData>
 {
     protected override void ValidationRules()
     {
         RuleFor(x => x.DataFactoryResult.Value1)
             .GreaterThan(-1);
-    }
-
-    public override RemoveCommandValidationFailedEvent CreateValidationFailedEvent(
-        MessageVerificationParameters<RemoveCommand, CommandMetadata, RemoveCommandUnverifiedData> parameters,
-        ValidationResult validationResult)
-    {
-        return new RemoveCommandValidationFailedEvent(validationResult.ToDictionary());
     }
 }

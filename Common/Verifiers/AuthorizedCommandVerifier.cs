@@ -5,12 +5,10 @@ using FluentValidation.Results;
 
 namespace Common.Verifiers;
 
-public abstract class AuthorizedCommandVerifier<TCommand, TUnverifiedData, TAuthorizationFailedEvent,
-    TValidationFailedEvent> :
+public abstract class AuthorizedCommandVerifier<TCommand, TUnverifiedData> :
     AbstractValidator<MessageVerificationParameters<TCommand, CommandMetadata, TUnverifiedData>>,
-    IAuthorizedCommandVerifier<TCommand, TUnverifiedData, TAuthorizationFailedEvent,
-        TValidationFailedEvent>
-    where TCommand : Message where TAuthorizationFailedEvent : Message where TValidationFailedEvent : Message
+    IAuthorizedCommandVerifier<TCommand, TUnverifiedData>
+    where TCommand : Message
 {
     protected AuthorizedCommandVerifier()
     {
@@ -35,18 +33,9 @@ public abstract class AuthorizedCommandVerifier<TCommand, TUnverifiedData, TAuth
         return authorizationResult;
     }
 
-    ValidationResult IAuthorizedCommandVerifier<TCommand, TUnverifiedData, TAuthorizationFailedEvent,
-        TValidationFailedEvent>.Validate(
+    ValidationResult IAuthorizedCommandVerifier<TCommand, TUnverifiedData>.Validate(
         MessageVerificationParameters<TCommand, CommandMetadata, TUnverifiedData> parameters)
     {
         return this.Validate(parameters, options => options.IncludeRuleSets("Validate"));
     }
-
-    public abstract TAuthorizationFailedEvent CreateAuthorizationFailedEvent(
-        MessageVerificationParameters<TCommand, CommandMetadata, TUnverifiedData> parameters,
-        AuthorizationResult authorizationResult);
-
-    public abstract TValidationFailedEvent CreateValidationFailedEvent(
-        MessageVerificationParameters<TCommand, CommandMetadata, TUnverifiedData> parameters,
-        ValidationResult validationResult);
 }

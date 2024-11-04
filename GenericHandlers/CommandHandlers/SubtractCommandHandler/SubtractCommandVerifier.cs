@@ -7,8 +7,7 @@ using GenericHandlers.Commands;
 
 namespace GenericHandlers.CommandHandlers.SubtractCommandHandler;
 
-public class SubtractCommandVerifier : AuthorizedCommandVerifier<SubtractCommand, SubtractCommandUnverifiedData,
-    SubtractCommandAuthorizationFailedEvent, SubtractCommandValidationFailedEvent>
+public class SubtractCommandVerifier : AuthorizedCommandVerifier<SubtractCommand, SubtractCommandUnverifiedData>
 {
     protected override void AuthorizationRules()
     {
@@ -20,19 +19,5 @@ public class SubtractCommandVerifier : AuthorizedCommandVerifier<SubtractCommand
     {
         RuleFor(x => x.DataFactoryResult.Value1)
             .GreaterThan(0);
-    }
-
-    public override SubtractCommandAuthorizationFailedEvent CreateAuthorizationFailedEvent(
-        MessageVerificationParameters<SubtractCommand, CommandMetadata, SubtractCommandUnverifiedData> parameters,
-        AuthorizationResult authorizationResult)
-    {
-        return new SubtractCommandAuthorizationFailedEvent(authorizationResult.ErrorMessages);
-    }
-
-    public override SubtractCommandValidationFailedEvent CreateValidationFailedEvent(
-        MessageVerificationParameters<SubtractCommand, CommandMetadata, SubtractCommandUnverifiedData> parameters,
-        ValidationResult validationResult)
-    {
-        return new SubtractCommandValidationFailedEvent(validationResult.ToDictionary());
     }
 }

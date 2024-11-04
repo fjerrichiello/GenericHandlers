@@ -4,13 +4,12 @@ using FluentValidation.Results;
 
 namespace Common.Verifiers;
 
-public abstract class MessageVerifier<TMessage, TMessageMetadata, TUnverifiedData,
-    TValidationFailedEvent> :
+public abstract class MessageVerifier<TMessage, TMessageMetadata, TUnverifiedData
+> :
     AbstractValidator<MessageVerificationParameters<TMessage, TMessageMetadata, TUnverifiedData>>,
-    IMessageVerifier<TMessage, TMessageMetadata, TUnverifiedData, TValidationFailedEvent>
+    IMessageVerifier<TMessage, TMessageMetadata, TUnverifiedData>
     where TMessage : Message
     where TMessageMetadata : MessageMetadata
-    where TValidationFailedEvent : Message
 {
     protected MessageVerifier()
     {
@@ -19,13 +18,9 @@ public abstract class MessageVerifier<TMessage, TMessageMetadata, TUnverifiedDat
 
     protected abstract void ValidationRules();
 
-    ValidationResult IMessageVerifier<TMessage, TMessageMetadata, TUnverifiedData, TValidationFailedEvent>.Validate(
+    ValidationResult IMessageVerifier<TMessage, TMessageMetadata, TUnverifiedData>.Validate(
         MessageVerificationParameters<TMessage, TMessageMetadata, TUnverifiedData> parameters)
     {
         return this.Validate(parameters, options => options.IncludeRuleSets("Validate"));
     }
-
-    public abstract TValidationFailedEvent CreateValidationFailedEvent(
-        MessageVerificationParameters<TMessage, TMessageMetadata, TUnverifiedData> parameters,
-        ValidationResult validationResult);
 }

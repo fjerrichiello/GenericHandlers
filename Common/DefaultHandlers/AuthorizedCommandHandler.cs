@@ -7,20 +7,16 @@ using Microsoft.Extensions.Logging;
 
 namespace Common.DefaultHandlers;
 
-public class AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifiedData, TAuthorizationFailedEvent,
-    TValidationFailedEvent, TFailedEvent>(
+public class AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifiedData, TFailedEvent>(
     IDataFactory<TMessage,
         CommandMetadata, TUnverifiedData, TVerifiedData> _dataFactory,
-    IAuthorizedCommandVerifier<TMessage, TUnverifiedData, TAuthorizationFailedEvent, TValidationFailedEvent> _verifier,
+    IAuthorizedCommandVerifier<TMessage, TUnverifiedData> _verifier,
     IPublishingOperation<TMessage, CommandMetadata, TVerifiedData, TFailedEvent> _operation,
     IEventPublisher _eventPublisher,
-    ILogger<AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifiedData, TAuthorizationFailedEvent,
-        TValidationFailedEvent, TFailedEvent>> _logger)
+    ILogger<AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifiedData, TFailedEvent>> _logger)
     : IMessageContainerHandler<TMessage,
         CommandMetadata>
     where TMessage : Message
-    where TAuthorizationFailedEvent : Message
-    where TValidationFailedEvent : Message
     where TFailedEvent : Message
 {
     public async Task HandleAsync(MessageContainer<TMessage, CommandMetadata> container)
@@ -37,7 +33,7 @@ public class AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifiedData, 
             if (!authorizationResult.IsAuthorized)
             {
                 await _eventPublisher.PublishAsync(container,
-                    new AuthorizationFailedMessage(authorizationResult.ErrorMessages, typeof(TFailedEvent)));
+                    new AuthorizationFailedMessageHolder(authorizationResult.ErrorMessages, typeof(TFailedEvent)));
                 return;
             }
 
@@ -45,7 +41,7 @@ public class AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifiedData, 
             if (!validationResult.IsValid)
             {
                 await _eventPublisher.PublishAsync(container,
-                    validationResult.ToValidationFailedMessage(typeof(TFailedEvent)));
+                    new ValidationFailedMessageHolder(validationResult.ToDictionarySnakeCase(), typeof(TFailedEvent)));
                 return;
             }
 

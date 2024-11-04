@@ -4,7 +4,7 @@ public interface IEventPublisher
 {
     Task PublishAsync<TCommand, TEvent>(
         MessageContainer<TCommand, CommandMetadata> commandContainer,
-        IEnumerable<TEvent> events)
+        IEnumerable<TEvent> eventBodies)
         where TCommand : Message
         where TEvent : Message;
 

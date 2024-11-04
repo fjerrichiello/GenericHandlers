@@ -7,8 +7,7 @@ using GenericHandlers.Commands;
 
 namespace GenericHandlers.CommandHandlers.AddCommandHandler;
 
-public class AddCommandVerifier : AuthorizedCommandVerifier<AddCommand, AddCommandUnverifiedData,
-    AddCommandAuthorizationFailedEvent, AddCommandValidationFailedEvent>
+public class AddCommandVerifier : AuthorizedCommandVerifier<AddCommand, AddCommandUnverifiedData>
 {
     protected override void AuthorizationRules()
     {
@@ -23,19 +22,5 @@ public class AddCommandVerifier : AuthorizedCommandVerifier<AddCommand, AddComma
 
         RuleFor(x => x.DataFactoryResult.TestValue3)
             .NotEmpty();
-    }
-
-    public override AddCommandAuthorizationFailedEvent CreateAuthorizationFailedEvent(
-        MessageVerificationParameters<AddCommand, CommandMetadata, AddCommandUnverifiedData> parameters,
-        AuthorizationResult authorizationResult)
-    {
-        return new AddCommandAuthorizationFailedEvent(authorizationResult.ErrorMessages);
-    }
-
-    public override AddCommandValidationFailedEvent CreateValidationFailedEvent(
-        MessageVerificationParameters<AddCommand, CommandMetadata, AddCommandUnverifiedData> parameters,
-        ValidationResult validationResult)
-    {
-        return new AddCommandValidationFailedEvent(validationResult.ToDictionary());
     }
 }

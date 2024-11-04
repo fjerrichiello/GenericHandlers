@@ -4,6 +4,14 @@ namespace Common.Messaging;
 
 public static class EventExtensions
 {
+    public static List<string> GetGenericFailedTags(Type eventType)
+    {
+        var tags = GetTags(eventType);
+        tags.Remove("failed");
+        tags.Remove("Failed");
+        return tags;
+    }
+
     public static List<string> GetTags(Type eventType)
     {
         var tags =
