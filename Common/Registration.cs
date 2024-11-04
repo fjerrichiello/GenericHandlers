@@ -31,11 +31,10 @@ public static class Registration
 
     private static readonly Type AuthorizedCommandVerifierType = typeof(IAuthorizedCommandVerifier<,>);
     private static readonly Type MessageVerifierType = typeof(IMessageVerifier<,,>);
-    private static readonly Type EventVerifierType = typeof(IEventVerifier<,>);
 
     private static readonly IEnumerable<Type> VerifierTypes =
     [
-        AuthorizedCommandVerifierType, MessageVerifierType, EventVerifierType,
+        AuthorizedCommandVerifierType, MessageVerifierType
     ];
 
     private static readonly Type OperationType = typeof(IOperation<,,,>);
@@ -178,10 +177,10 @@ public static class Registration
         interfaces.Contains(MessageVerifierType) && interfaces.Contains(PublishingOperationType);
 
     private static bool IsGenericPublishingEventHandler(List<Type> interfaces) =>
-        interfaces.Contains(EventVerifierType) && interfaces.Contains(EventPublishingOperationType);
+        interfaces.Contains(MessageVerifierType) && interfaces.Contains(EventPublishingOperationType);
 
     private static bool IsGenericEventHandlerType(List<Type> interfaces) =>
-        interfaces.Contains(EventVerifierType) && interfaces.Contains(EventOperationType);
+        interfaces.Contains(MessageVerifierType) && interfaces.Contains(EventOperationType);
 
     private static bool IsAllowedType(Type type) =>
         !type.IsAbstract && (IsDataFactory(type) || IsVerifier(type) || IsAnyOperation(type));

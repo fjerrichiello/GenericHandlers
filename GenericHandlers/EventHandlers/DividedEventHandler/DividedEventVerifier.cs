@@ -1,11 +1,12 @@
 ﻿using Common.Events.DividedCommand;
 using Common.Events.MultipliedCommand;
+using Common.Messaging;
 using Common.Verifiers;
 using FluentValidation;
 
 namespace GenericHandlers.EventHandlers.DividedEventHandler;
 
-public class DividedEventVerifier : EventVerifier<DividedEvent, DividedEventUnverifiedData>
+public class DividedEventVerifier : MessageVerifier<DividedEvent, EventMetadata, DividedEventUnverifiedData>
 {
     protected override void ValidationRules()
     {

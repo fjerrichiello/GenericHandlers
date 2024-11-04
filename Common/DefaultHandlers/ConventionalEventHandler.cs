@@ -9,7 +9,7 @@ namespace Common.DefaultHandlers;
 public class ConventionalEventHandler<TMessage, TUnverifiedData, TVerifiedData>(
     IDataFactory<TMessage,
         EventMetadata, TUnverifiedData, TVerifiedData> _dataFactory,
-    IEventVerifier<TMessage, TUnverifiedData> _verifier,
+    IMessageVerifier<TMessage, EventMetadata, TUnverifiedData> _verifier,
     IEventOperation<TMessage, EventMetadata, TVerifiedData> _operation,
     ILogger<ConventionalEventHandler<TMessage, TUnverifiedData, TVerifiedData>>
         _logger)

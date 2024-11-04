@@ -9,7 +9,7 @@ namespace Common.DefaultHandlers;
 public class PublishingEventHandler<TMessage, TUnverifiedData, TVerifiedData>(
     IDataFactory<TMessage,
         EventMetadata, TUnverifiedData, TVerifiedData> _dataFactory,
-    IEventVerifier<TMessage, TUnverifiedData> _verifier,
+    IMessageVerifier<TMessage, EventMetadata, TUnverifiedData> _verifier,
     IEventPublishingOperation<TMessage, EventMetadata, TVerifiedData> _operation,
     IEventPublisher _eventPublisher,
     ILogger<PublishingEventHandler<TMessage, TUnverifiedData, TVerifiedData>>
