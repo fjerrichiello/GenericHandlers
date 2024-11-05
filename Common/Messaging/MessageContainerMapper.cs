@@ -18,7 +18,10 @@ public class MessageContainerMapper<TMessage, TMessageMetadata>()
 
         using var mergedMessageContent = (JsonDocument)Merge(messageContent);
 
-        var message = mergedMessageContent.Deserialize<TMessage>();
+        var message = mergedMessageContent.Deserialize<TMessage>(new JsonSerializerOptions()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
         var metadata = detail.Deserialize<TMessageMetadata>();
 
         return new MessageContainer<TMessage, TMessageMetadata>(

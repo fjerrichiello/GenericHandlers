@@ -1,4 +1,5 @@
-﻿using Common.DataFactory;
+﻿using System.Reflection;
+using Common.DataFactory;
 using Common.DefaultHandlers;
 using Common.Helpers;
 using Common.Messaging;
@@ -43,40 +44,34 @@ public static class Registration
 
         services.AddSingleton(typeof(MessageContainerMapper<,>));
 
-        var registrations = sourceTypes.Select(sourceType => sourceType.Assembly).Distinct()
+        var handlers = sourceTypes.Select(sourceType => sourceType.Assembly).Distinct()
             .SelectMany(assembly => assembly.GetTypes())
             .Where(IsAllowedType)
             .SelectMany(usageType => usageType.GetInterfaces().Where(IsAllowedInterfaceType).Select(x => new
             {
                 MessageType = x.GetGenericArguments().First(),
+                MessageMetadataType = x.GetGenericArguments().Skip(1).First(),
                 UsageType = usageType,
-                UsageInterfaceType = x
+                UsageInterfaceType = x,
             }))
-            .GroupBy(x => x.MessageType)
-            .ToDictionary(group => group.Key, group => group.ToList());
+            .GroupBy(x => (x.MessageType, x.MessageMetadataType))
+            .Select(x => new HandlerDetails(x.Key.MessageType, x.Key.MessageMetadataType,
+                x.Select(y => (y.UsageInterfaceType, y.UsageType)).ToList())).ToList();
 
-        registrations.Dump();
+        handlers.Dump();
 
-        foreach (var message in registrations.Keys)
+        foreach (var handler in handlers)
         {
-            var handlerDependencies = registrations[message];
-
-            var genericParameters =
-                new HandlerParameters(handlerDependencies.Select(x => x.UsageInterfaceType).ToList());
-
-            foreach (var handlerDependency in handlerDependencies)
+            foreach (var service in handler.Services)
             {
-                services.AddScoped(handlerDependency.UsageInterfaceType, handlerDependency.UsageType);
-
-                genericParameters.SetType(handlerDependency.UsageInterfaceType);
+                services.AddScoped(service.Item1, service.Item2);
             }
 
-            services.AddScoped(genericParameters.GetGenericInterfaceType(),
-                genericParameters.GetGenericHandlerType());
+            services.AddScoped(handler.ClosedInterfaceType, handler.ClosedType);
 
 
-            services.AddKeyedScoped(typeof(IMessageOrchestrator), genericParameters.GetMessageName(),
-                genericParameters.GetGenericOrchestratorType());
+            services.AddKeyedScoped(typeof(IMessageOrchestrator), handler.MessageType.Name,
+                handler.ClosedMessageOrchestratorType);
         }
 
         services.AddScoped<IEventPublisher, EventPublisher>();
@@ -84,62 +79,59 @@ public static class Registration
         return services;
     }
 
-    private record HandlerParameters(List<Type> Interfaces)
+    private record HandlerDetails
     {
-        public string GetMessageName() => MessageType.Name;
-
-        public Type GetGenericOrchestratorType()
-            => GenericMessageOrchestratorType.MakeGenericType(MessageType,
-                MessageMetadataType);
-
-        public Type GetGenericInterfaceType()
-            => MessageContainerHandlerType.MakeGenericType(MessageType,
-                MessageMetadataType);
-
-        public Type GetGenericHandlerType()
+        public HandlerDetails(Type messageType, Type messageMetadataType, List<(Type, Type)> services)
         {
-            var genericInterfaces = Interfaces.Select(i => i.GetGenericTypeDefinition()).ToList();
+            Services = services;
+            MessageType = messageType;
+            MessageMetadataType = messageMetadataType;
+
+
+            var genericParameters = services.SelectMany(x => x.Item1.GetGenericArguments()).Distinct().ToList();
+            UnverifiedDataType = genericParameters.FirstOrDefault(p => p.Name.EndsWith("UnverifiedData")) ??
+                                 throw new Exception("Unverified Data Type does not exist.");
+            VerifiedDataType = genericParameters.FirstOrDefault(p => p.Name.EndsWith("VerifiedData")) ??
+                               throw new Exception("Verified Data Type does not exist.");
+
+            ClosedMessageOrchestratorType =
+                GenericMessageOrchestratorType.MakeGenericType(MessageType, MessageMetadataType);
+            ClosedInterfaceType =
+                MessageContainerHandlerType.MakeGenericType(MessageType, MessageMetadataType);
+            ClosedType = GetGenericHandlerType(services.Select(x => x.Item1.GetGenericTypeDefinition()).ToList());
+        }
+
+        private Type GetGenericHandlerType(List<Type> interfaces)
+        {
+            var genericInterfaces = interfaces.Select(u => u.GetGenericTypeDefinition()).ToList();
             if (genericInterfaces.Contains(AuthorizedCommandVerifierType))
             {
-                return GenericAuthorizedCommandHandlerType.MakeGenericType(MessageType, UnverifiedDataType,
+                return GenericAuthorizedCommandHandlerType.MakeGenericType(MessageType,
+                    UnverifiedDataType,
                     VerifiedDataType);
             }
 
             if (MessageMetadataType == typeof(CommandMetadata))
             {
-                return GenericCommandHandlerType.MakeGenericType(MessageType, UnverifiedDataType, VerifiedDataType);
+                return
+                    GenericCommandHandlerType.MakeGenericType(MessageType, UnverifiedDataType, VerifiedDataType);
             }
-
-
-            return GenericEventHandlerType.MakeGenericType(MessageType, UnverifiedDataType, VerifiedDataType);
+            else
+            {
+                return
+                    GenericEventHandlerType.MakeGenericType(MessageType, UnverifiedDataType, VerifiedDataType);
+            }
         }
 
-        private Type MessageType { get; set; }
-
-        private Type MessageMetadataType { get; set; }
-
-        private Type UnverifiedDataType { get; set; }
-
-        private Type VerifiedDataType { get; set; }
-
-        public void SetType(Type type)
-        {
-            var genericArguments = type.GetGenericArguments();
-
-            if (IsDataFactoryInterface(type))
-            {
-                UnverifiedDataType = genericArguments[^2];
-                VerifiedDataType = genericArguments.Last();
-            }
-
-            if (IsOperationInterface(type))
-            {
-                MessageType = genericArguments.First();
-                MessageMetadataType = genericArguments.Skip(1).First();
-            }
-        }
+        public Type ClosedMessageOrchestratorType { get; set; }
+        public Type ClosedInterfaceType { get; set; }
+        public Type ClosedType { get; set; }
+        public Type UnverifiedDataType { get; set; }
+        public Type VerifiedDataType { get; set; }
+        public Type MessageType { get; }
+        public Type MessageMetadataType { get; }
+        public List<(Type, Type)> Services { get; }
     }
-
 
     private static bool IsAllowedType(Type type) =>
         !type.IsAbstract && (IsDataFactory(type) || IsVerifier(type) || IsOperation(type));

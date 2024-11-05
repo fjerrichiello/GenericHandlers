@@ -4,11 +4,15 @@ namespace GenericHandlers.Persistence.Models;
 
 public class Book
 {
-    public Book(Domain.Models.Book book)
+    public Book(Domain.Models.Book book) : this(book.Id, book.AuthorId, book.Title)
     {
-        Id = book.Id;
-        AuthorId = book.AuthorId;
-        Title = book.Title;
+    }
+
+    public Book(int id, int authorId, string title)
+    {
+        Id = id;
+        AuthorId = authorId;
+        Title = title;
     }
 
     [Key]

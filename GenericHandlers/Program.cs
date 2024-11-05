@@ -1,4 +1,7 @@
+using Common;
 using Common.Messaging;
+using Dumpify;
+using GenericHandlers.CommandHandlers.Authors.AddAuthor;
 using GenericHandlers.Persistence;
 using GenericHandlers.Persistence.Repositories;
 using GenericHandlers.Persistence.UnitOfWork;
@@ -14,7 +17,7 @@ var configuration = builder.Configuration;
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// builder.Services.AddEventHandlersAndNecessaryWork(typeof(AddCommandOperation));
+builder.Services.AddEventHandlersAndNecessaryWork(typeof(AddAuthorOperation));
 
 // Add Services
 
@@ -45,6 +48,7 @@ app.UseHttpsRedirection();
 app.MapPost("/command-events",
         async ([FromBody] MessageRequest request, IServiceProvider _provider) =>
         {
+            request.Dump();
             var orchestrator = _provider.GetRequiredKeyedService<IMessageOrchestrator>(request.DetailType);
 
             await orchestrator.ProcessAsync(request);

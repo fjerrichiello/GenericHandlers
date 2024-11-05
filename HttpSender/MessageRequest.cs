@@ -2,4 +2,6 @@
 
 namespace HttpSender;
 
-public class MessageRequest(string? DetailType, JsonElement? Detail);
+public record MessageRequest(string? DetailType, Detail? Detail);
+
+public record Detail(JsonElement? Body);

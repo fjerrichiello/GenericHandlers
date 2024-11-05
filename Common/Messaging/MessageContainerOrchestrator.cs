@@ -1,4 +1,6 @@
-﻿namespace Common.Messaging;
+﻿using Dumpify;
+
+namespace Common.Messaging;
 
 public class MessageContainerOrchestrator<TMessage, TMessageMetadata>(
     MessageContainerMapper<TMessage, TMessageMetadata> _mapper,
@@ -10,6 +12,8 @@ public class MessageContainerOrchestrator<TMessage, TMessageMetadata>(
     public async Task ProcessAsync(MessageRequest request)
     {
         var container = _mapper.ToMessageContainer(request);
+
+        container.Dump();
 
         await _handler.HandleAsync(container);
     }

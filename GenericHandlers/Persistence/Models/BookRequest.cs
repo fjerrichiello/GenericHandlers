@@ -7,24 +7,25 @@ namespace GenericHandlers.Persistence.Models;
 
 public class BookRequest
 {
-    public BookRequest(AddBookRequest addBookRequest)
+    public BookRequest(AddBookRequest addBookRequest) : this(addBookRequest.AuthorId, addBookRequest.Title,
+        addBookRequest.Title, RequestType.Add, ApprovalStatus.Pending)
     {
-        Id = Random.Shared.Next(1000000);
-        AuthorId = addBookRequest.AuthorId;
-        Title = addBookRequest.Title;
-        NewTitle = addBookRequest.Title;
-        RequestType = RequestType.Add;
-        ApprovalStatus = ApprovalStatus.Pending;
     }
 
-    public BookRequest(EditBookRequest editBookRequest)
+    public BookRequest(EditBookRequest editBookRequest) : this(editBookRequest.AuthorId, editBookRequest.Title,
+        editBookRequest.NewTitle, RequestType.Edit, ApprovalStatus.Pending)
+    {
+    }
+
+    public BookRequest(int authorId, string title, string newTitle, RequestType requestType,
+        ApprovalStatus approvalStatus)
     {
         Id = Random.Shared.Next(1000000);
-        AuthorId = editBookRequest.AuthorId;
-        Title = editBookRequest.Title;
-        NewTitle = editBookRequest.Title;
-        RequestType = RequestType.Edit;
-        ApprovalStatus = ApprovalStatus.Pending;
+        AuthorId = authorId;
+        Title = title;
+        NewTitle = newTitle;
+        RequestType = requestType;
+        ApprovalStatus = approvalStatus;
     }
 
     [Key]

@@ -1,3 +1,0 @@
-﻿namespace GenericHandlersWithEventFactories.CommandHandlers.AddCommandHandler;
-
-public record AddCommandVerifiedData(int Value1);
