@@ -1,6 +1,7 @@
 ﻿using Common.DataFactory;
 using Common.Helpers;
 using Common.Messaging;
+using Common.Messaging.Publishing;
 using Common.Operations;
 using Common.Verifiers;
 using Microsoft.Extensions.Logging;

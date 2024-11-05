@@ -1,3 +1,5 @@
+using Common.Messaging.Publishing;
+
 namespace Common.Messaging;
 
 public interface IEventPublisher
