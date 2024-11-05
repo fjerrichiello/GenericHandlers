@@ -1,7 +1,6 @@
 ﻿using Common.DataFactory;
 using Common.Helpers;
 using Common.Messaging;
-using Common.Messaging.Publishing;
 using Common.Operations;
 using Common.Verifiers;
 using Microsoft.Extensions.Logging;
@@ -32,16 +31,16 @@ public sealed class AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifie
             var authorizationResult = _verifier.Authorize(verificationParameters);
             if (!authorizationResult.IsAuthorized)
             {
-                await _eventPublisher.PublishAsync(container,
-                    new AuthorizationFailedEvent(authorizationResult.ErrorMessages));
+                await _eventPublisher.PublishAuthorizationFailedAsync(container,
+                    new(authorizationResult.ErrorMessages));
                 return;
             }
 
             var validationResult = _verifier.Validate(verificationParameters);
             if (!validationResult.IsValid)
             {
-                await _eventPublisher.PublishAsync(container,
-                    new ValidationFailedEvent(validationResult.ToDictionarySnakeCase()));
+                await _eventPublisher.PublishValidationFailedAsync(container,
+                    new(validationResult.ToDictionarySnakeCase()));
                 return;
             }
 
@@ -52,7 +51,7 @@ public sealed class AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifie
         catch (Exception e)
         {
             _logger.LogError(e.Message);
-            await _eventPublisher.PublishAsync(container, new UnhandledExceptionEvent(e.Message));
+            await _eventPublisher.PublishUnhandledExceptionAsync(container, new(e.Message));
         }
     }
 }

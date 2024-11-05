@@ -1,7 +1,6 @@
 ﻿using Common.DataFactory;
 using Common.Helpers;
 using Common.Messaging;
-using Common.Messaging.Publishing;
 using Common.Operations;
 using Common.Verifiers;
 using Microsoft.Extensions.Logging;
@@ -33,8 +32,8 @@ public sealed class CommandHandler<TMessage, TUnverifiedData, TVerifiedData>(
             var validationResult = _verifier.Validate(verificationParameters);
             if (!validationResult.IsValid)
             {
-                await _eventPublisher.PublishAsync(container,
-                    new ValidationFailedEvent(validationResult.ToDictionarySnakeCase()));
+                await _eventPublisher.PublishValidationFailedAsync(container,
+                    new(validationResult.ToDictionarySnakeCase()));
                 return;
             }
 
@@ -45,7 +44,7 @@ public sealed class CommandHandler<TMessage, TUnverifiedData, TVerifiedData>(
         catch (Exception e)
         {
             _logger.LogError(e.Message);
-            await _eventPublisher.PublishAsync(container, new UnhandledExceptionEvent(e.Message));
+            await _eventPublisher.PublishUnhandledExceptionAsync(container, new(e.Message));
         }
     }
 }

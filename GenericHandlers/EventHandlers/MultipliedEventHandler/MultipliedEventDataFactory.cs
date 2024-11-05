@@ -1,7 +1,6 @@
 ﻿using Common.DataFactory;
 using Common.Events.MultiplyCommand;
 using Common.Messaging;
-using GenericHandlers.Commands;
 
 namespace GenericHandlers.EventHandlers.MultipliedEventHandler;
 
