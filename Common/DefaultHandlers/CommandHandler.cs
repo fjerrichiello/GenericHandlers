@@ -7,18 +7,17 @@ using Microsoft.Extensions.Logging;
 
 namespace Common.DefaultHandlers;
 
-public class CommandHandler<TMessage, TUnverifiedData, TVerifiedData, TFailedEvent>(
+public class CommandHandler<TMessage, TUnverifiedData, TVerifiedData>(
     IDataFactory<TMessage,
         CommandMetadata, TUnverifiedData, TVerifiedData> _dataFactory,
     IMessageVerifier<TMessage, CommandMetadata, TUnverifiedData> _verifier,
-    IPublishingOperation<TMessage, CommandMetadata, TVerifiedData, TFailedEvent> _operation,
+    IOperation<TMessage, CommandMetadata, TVerifiedData> _operation,
     IEventPublisher _eventPublisher,
-    ILogger<CommandHandler<TMessage, TUnverifiedData, TVerifiedData, TFailedEvent>>
+    ILogger<CommandHandler<TMessage, TUnverifiedData, TVerifiedData>>
         _logger)
     : IMessageContainerHandler<TMessage,
         CommandMetadata>
     where TMessage : Message
-    where TFailedEvent : Message
 {
     public async Task HandleAsync(MessageContainer<TMessage, CommandMetadata> container)
     {
@@ -34,18 +33,18 @@ public class CommandHandler<TMessage, TUnverifiedData, TVerifiedData, TFailedEve
             if (!validationResult.IsValid)
             {
                 await _eventPublisher.PublishAsync(container,
-                    new ValidationFailedMessageHolder(validationResult.ToDictionarySnakeCase(), typeof(TFailedEvent)));
+                    new ValidationFailedEvent(validationResult.ToDictionarySnakeCase()));
                 return;
             }
 
             var verifiedData = _dataFactory.GetVerifiedData(unverifiedData);
 
-            await _operation.ExecuteAsync(container, verifiedData, _eventPublisher);
+            await _operation.ExecuteAsync(container, verifiedData);
         }
         catch (Exception e)
         {
             _logger.LogError(e.Message);
-            await _eventPublisher.PublishAsync(container, _operation.CreateFailedEvent(container, e));
+            await _eventPublisher.PublishAsync(container, new UnhandledExceptionEvent(e.Message));
         }
     }
 }

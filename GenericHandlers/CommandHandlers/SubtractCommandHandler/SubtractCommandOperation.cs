@@ -5,21 +5,16 @@ using GenericHandlers.Commands;
 
 namespace GenericHandlers.CommandHandlers.SubtractCommandHandler;
 
-public class SubtractCommandOperation : IPublishingOperation<SubtractCommand, CommandMetadata, SubtractCommandVerifiedData,
-    SubtractCommandFailedEvent>
+public class SubtractCommandOperation(IEventPublisher _eventPublisher)
+    : IOperation<SubtractCommand, CommandMetadata, SubtractCommandVerifiedData>
 {
-    public async Task ExecuteAsync(MessageContainer<SubtractCommand, CommandMetadata> container, SubtractCommandVerifiedData data,
-        IEventPublisher eventPublisher)
+    public async Task ExecuteAsync(MessageContainer<SubtractCommand, CommandMetadata> container,
+        SubtractCommandVerifiedData data)
     {
         await Task.Delay(250);
 
         //Do Work
 
-        await eventPublisher.PublishAsync(container, new SubtractedEvent(data.Value1));
-    }
-
-    public SubtractCommandFailedEvent CreateFailedEvent(MessageContainer<SubtractCommand, CommandMetadata> container, Exception e)
-    {
-        return new SubtractCommandFailedEvent(e.Message);
+        await _eventPublisher.PublishAsync(container, new SubtractedEvent(data.Value1));
     }
 }

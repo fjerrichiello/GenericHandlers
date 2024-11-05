@@ -5,24 +5,16 @@ using GenericHandlers.Commands;
 
 namespace GenericHandlers.CommandHandlers.MultiplyCommandHandler;
 
-public class MultiplyCommandOperation : IPublishingOperation<MultiplyCommand, CommandMetadata,
-    MultiplyCommandVerifiedData,
-    MultiplyCommandFailedEvent>
+public class MultiplyCommandOperation(IEventPublisher _eventPublisher) : IOperation<MultiplyCommand, CommandMetadata,
+    MultiplyCommandVerifiedData>
 {
     public async Task ExecuteAsync(MessageContainer<MultiplyCommand, CommandMetadata> container,
-        MultiplyCommandVerifiedData data,
-        IEventPublisher eventPublisher)
+        MultiplyCommandVerifiedData data)
     {
         await Task.Delay(250);
 
         //Do Work
 
-        await eventPublisher.PublishAsync(container, new MultipliedEvent(data.Value1));
-    }
-
-    public MultiplyCommandFailedEvent CreateFailedEvent(MessageContainer<MultiplyCommand, CommandMetadata> container,
-        Exception e)
-    {
-        return new MultiplyCommandFailedEvent(e.Message);
+        await _eventPublisher.PublishAsync(container, new MultipliedEvent(data.Value1));
     }
 }

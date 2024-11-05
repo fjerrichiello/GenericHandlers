@@ -1,13 +1,11 @@
-﻿using Common.Events.AddCommand;
-using Common.Messaging;
+﻿using Common.Messaging;
 using Common.Verifiers;
 using FluentValidation;
-using FluentValidation.Results;
 using GenericHandlers.Commands;
 
 namespace GenericHandlers.CommandHandlers.AddCommandHandler;
 
-public class AddCommandVerifier : AuthorizedCommandVerifier<AddCommand, AddCommandUnverifiedData>
+public class AddCommandVerifier : AuthorizedMessageVerifier<AddCommand, CommandMetadata, AddCommandUnverifiedData>
 {
     protected override void AuthorizationRules()
     {

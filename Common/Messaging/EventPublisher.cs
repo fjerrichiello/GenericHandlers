@@ -31,6 +31,73 @@ public class EventPublisher : IEventPublisher
         await Task.Delay(250);
     }
 
+    public async Task PublishAuthorizationFailedAsync<TCommand>(
+        MessageContainer<TCommand, CommandMetadata> commandContainer, AuthorizationFailedEvent eventBody)
+        where TCommand : Message
+    {
+        var request = new PutEventsRequest()
+        {
+            Entries = [GetEntry(commandContainer, eventBody)]
+        };
+
+        request.Dump();
+        await Task.Delay(250);
+    }
+
+    public async Task PublishValidationFailedAsync<TCommand>(
+        MessageContainer<TCommand, CommandMetadata> commandContainer, ValidationFailedEvent eventBody)
+        where TCommand : Message
+    {
+        var request = new PutEventsRequest()
+        {
+            Entries = [GetEntry(commandContainer, eventBody)]
+        };
+
+        request.Dump();
+        await Task.Delay(250);
+    }
+
+    public async Task PublishValidationFailedAsync<TSourceEvent>(
+        MessageContainer<TSourceEvent, EventMetadata> eventContainer, ValidationFailedEvent eventBody)
+        where TSourceEvent : Message
+    {
+        var request = new PutEventsRequest()
+        {
+            Entries = [GetEntry(eventContainer, eventBody)]
+        };
+
+        request.Dump();
+        await Task.Delay(250);
+    }
+
+    public async Task PublishUnhandledExceptionAsync<TCommand>(
+        MessageContainer<TCommand, CommandMetadata> commandContainer, UnhandledExceptionEvent eventBody)
+        where TCommand : Message
+    {
+        var request = new PutEventsRequest()
+        {
+            Entries = [GetEntry(commandContainer, eventBody)]
+        };
+
+        request.Dump();
+        await Task.Delay(250);
+    }
+
+
+    public async Task PublishUnhandledExceptionAsync<TSourceEvent>(
+        MessageContainer<TSourceEvent, EventMetadata> eventContainer, UnhandledExceptionEvent eventBody)
+        where TSourceEvent : Message
+    {
+        var request = new PutEventsRequest()
+        {
+            Entries = [GetEntry(eventContainer, eventBody)]
+        };
+
+        request.Dump();
+        await Task.Delay(250);
+    }
+
+
     private List<RequestEntry> GetEntries<TMessage, TEvent>(
         MessageContainer<TMessage, CommandMetadata> commandContainer,
         IEnumerable<TEvent> eventBodies)
@@ -41,7 +108,7 @@ public class EventPublisher : IEventPublisher
             eventBody => new RequestEntry
             {
                 Source = "SourceName",
-                DetailType = GetDetailType(commandContainer, eventBody),
+                DetailType = typeof(TEvent).Name,
                 Detail = GetDetail(commandContainer, eventBody),
             }).ToList(); // List<PutEventsRequestEntry>
     }
@@ -56,35 +123,99 @@ public class EventPublisher : IEventPublisher
             eventBody => new RequestEntry
             {
                 Source = "SourceName",
-                DetailType = GetDetailType(eventContainer, eventBody),
+                DetailType = typeof(TEvent).Name,
                 Detail = GetDetail(eventContainer, eventBody),
             }).ToList(); // List<PutEventsRequestEntry>
     }
 
-     private string GetDetail<TMessage, TEvent>(
+
+    private RequestEntry GetEntry<TMessage>(
+        MessageContainer<TMessage, CommandMetadata> commandContainer,
+        AuthorizationFailedEvent eventBody)
+        where TMessage : Message
+    {
+        return new RequestEntry
+        {
+            Source = "SourceName",
+            DetailType = GetEventName(typeof(TMessage)) + "AuthorizationFailedEvent",
+            Detail = GetDetail(commandContainer, eventBody),
+        };
+    }
+
+    private RequestEntry GetEntry<TMessage>(
+        MessageContainer<TMessage, CommandMetadata> commandContainer,
+        ValidationFailedEvent eventBody)
+        where TMessage : Message
+    {
+        return new RequestEntry
+        {
+            Source = "SourceName",
+            DetailType = GetEventName(typeof(TMessage)) + "ValidationFailedEvent",
+            Detail = GetDetail(commandContainer, eventBody),
+        };
+    }
+
+    private RequestEntry GetEntry<TMessage>(
+        MessageContainer<TMessage, EventMetadata> eventContainer,
+        ValidationFailedEvent eventBody)
+        where TMessage : Message
+    {
+        return new RequestEntry
+        {
+            Source = "SourceName",
+            DetailType = GetEventName(typeof(TMessage)) + "ValidationFailedEvent",
+            Detail = GetDetail(eventContainer, eventBody),
+        };
+    }
+
+    private RequestEntry GetEntry<TMessage>(
+        MessageContainer<TMessage, CommandMetadata> commandContainer,
+        UnhandledExceptionEvent eventBody)
+        where TMessage : Message
+    {
+        return new RequestEntry
+        {
+            Source = "SourceName",
+            DetailType = GetEventName(typeof(TMessage)) + "FailedEvent",
+            Detail = GetDetail(commandContainer, eventBody),
+        };
+    }
+
+    private RequestEntry GetEntry<TMessage>(
+        MessageContainer<TMessage, EventMetadata> eventContainer,
+        UnhandledExceptionEvent eventBody)
+        where TMessage : Message
+    {
+        return new RequestEntry
+        {
+            Source = "SourceName",
+            DetailType = GetEventName(typeof(TMessage)) + "FailedEvent",
+            Detail = GetDetail(eventContainer, eventBody),
+        };
+    }
+
+    private static string GetEventName(Type source)
+    {
+        var name = source.Name.AsSpan();
+        var command = "Command".AsSpan();
+        var @event = "Event".AsSpan();
+
+        return name.EndsWith(command)
+            ? name[..^command.Length].ToString()
+            : name[..^@event.Length].ToString();
+    }
+
+    private string GetDetail<TMessage, TEvent>(
         MessageContainer<TMessage, CommandMetadata> commandContainer,
         TEvent eventBody)
         where TMessage : Message
         where TEvent : Message
     {
-        return eventBody switch
+        return JsonSerializer.Serialize(new
         {
-            AuthorizationFailedMessageHolder messageHolder => JsonSerializer.Serialize(new
-            {
-                body = messageHolder.ErrorMessage,
-                tags = messageHolder.Tags
-            }),
-            ValidationFailedMessageHolder messageHolder => JsonSerializer.Serialize(new
-            {
-                body = messageHolder.ErrorMessage,
-                tags = messageHolder.Tags
-            }),
-            _ => JsonSerializer.Serialize(new
-            {
-                body = eventBody,
-                tags = EventExtensions.GetTags(typeof(TEvent))
-            })
-        };
+            body = eventBody,
+            tags = GetTags(eventBody)
+        });
     }
 
     private string GetDetail<TMessage, TEvent>(
@@ -93,36 +224,115 @@ public class EventPublisher : IEventPublisher
         where TMessage : Message
         where TEvent : Message
     {
-        return eventBody switch
+        return JsonSerializer.Serialize(new
         {
-            AuthorizationFailedMessageHolder messageHolder => JsonSerializer.Serialize(new
-            {
-                body = messageHolder.ErrorMessage,
-                tags = messageHolder.Tags
-            }),
-            ValidationFailedMessageHolder messageHolder => JsonSerializer.Serialize(new
-            {
-                body = messageHolder.ErrorMessage,
-                tags = messageHolder.Tags
-            }),
-            _ => JsonSerializer.Serialize(new
-            {
-                body = eventBody,
-                tags = EventExtensions.GetTags(typeof(TEvent))
-            })
-        };
+            body = eventBody,
+            tags = GetTags(eventBody)
+        });
     }
 
-    private static string GetDetailType<TMessage, TMessageMetadata, TEvent>(
-        MessageContainer<TMessage, TMessageMetadata> messageContainer,
-        TEvent eventBody)
+    private string GetDetail<TMessage>(
+        MessageContainer<TMessage, CommandMetadata> commandContainer,
+        AuthorizationFailedEvent eventBody)
         where TMessage : Message
-        where TMessageMetadata : MessageMetadata
-        where TEvent : Message
-        => eventBody switch
+    {
+        return JsonSerializer.Serialize(new
         {
-            AuthorizationFailedMessageHolder => typeof(TMessage).Name + "AuthorizationFailed",
-            ValidationFailedMessageHolder => typeof(TMessage).Name + "ValidationFailed",
-            _ => typeof(TEvent).Name
-        };
+            body = eventBody,
+            tags = GetTags(typeof(TMessage)).Concat(["authorization-failed"]).ToList()
+        });
+    }
+
+    private string GetDetail<TMessage>(
+        MessageContainer<TMessage, CommandMetadata> commandContainer,
+        ValidationFailedEvent eventBody)
+        where TMessage : Message
+    {
+        return JsonSerializer.Serialize(new
+        {
+            body = eventBody,
+            tags = GetTags(typeof(TMessage)).Concat(["validation-failed"]).ToList()
+        });
+    }
+
+    private string GetDetail<TMessage>(
+        MessageContainer<TMessage, EventMetadata> eventContainer,
+        ValidationFailedEvent eventBody)
+        where TMessage : Message
+    {
+        return JsonSerializer.Serialize(new
+        {
+            body = eventBody,
+            tags = GetTags(typeof(TMessage)).Concat(["validation-failed"]).ToList()
+        });
+    }
+
+    private string GetDetail<TMessage>(
+        MessageContainer<TMessage, CommandMetadata> commandContainer,
+        UnhandledExceptionEvent eventBody)
+        where TMessage : Message
+    {
+        return JsonSerializer.Serialize(new
+        {
+            body = eventBody,
+            tags = GetTags(typeof(TMessage)).Concat(["failed"]).ToList()
+        });
+    }
+
+    private string GetDetail<TMessage>(
+        MessageContainer<TMessage, EventMetadata> eventContainer,
+        UnhandledExceptionEvent eventBody)
+        where TMessage : Message
+    {
+        return JsonSerializer.Serialize(new
+        {
+            body = eventBody,
+
+            tags = GetTags(typeof(TMessage)).Concat(["failed"]).ToList()
+        });
+    }
+
+
+    private static List<string> GetTags(Type messageType)
+    {
+        var tags =
+            messageType
+                .GetCustomAttributes(typeof(FailedMessageTagsAttribute))
+                .OfType<FailedMessageTagsAttribute>()
+                .SelectMany(attribute => attribute.Tags)
+                .Select(tag => tag.ToLowerInvariant())
+                .ToList();
+
+        if (tags.Count is 0)
+        {
+            throw new InvalidOperationException(
+                $"{messageType.Name} does not declare any tags with MessageTagsAttribute.");
+        }
+
+        tags.Add("event");
+
+        return tags.Distinct().ToList();
+    }
+
+    private static List<string> GetTags<TEvent>(TEvent eventBody)
+    {
+        var tags =
+            eventBody!
+                .GetType()
+                .GetCustomAttributes(typeof(MessageTagsAttribute))
+                .OfType<MessageTagsAttribute>()
+                .SelectMany(attribute => attribute.Tags)
+                .Select(tag => tag.ToLowerInvariant())
+                .ToList();
+
+        if (tags.Count is 0)
+        {
+            throw new InvalidOperationException(
+                $"{typeof(TEvent).Name} does not declare any tags with MessageTagsAttribute.");
+        }
+
+        tags.Add("event");
+
+        return tags.Distinct().ToList();
+    }
 }

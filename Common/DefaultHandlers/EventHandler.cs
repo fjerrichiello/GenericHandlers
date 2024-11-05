@@ -6,12 +6,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Common.DefaultHandlers;
 
-public class ConventionalEventHandler<TMessage, TUnverifiedData, TVerifiedData>(
+public class EventHandler<TMessage, TUnverifiedData, TVerifiedData>(
     IDataFactory<TMessage,
         EventMetadata, TUnverifiedData, TVerifiedData> _dataFactory,
     IMessageVerifier<TMessage, EventMetadata, TUnverifiedData> _verifier,
-    IEventOperation<TMessage, EventMetadata, TVerifiedData> _operation,
-    ILogger<ConventionalEventHandler<TMessage, TUnverifiedData, TVerifiedData>>
+    IOperation<TMessage, EventMetadata, TVerifiedData> _operation,
+    ILogger<EventHandler<TMessage, TUnverifiedData, TVerifiedData>>
         _logger)
     : IMessageContainerHandler<TMessage,
         EventMetadata>

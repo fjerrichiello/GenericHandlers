@@ -4,7 +4,7 @@ using Common.Operations;
 
 namespace GenericHandlers.EventHandlers.MultipliedEventHandler;
 
-public class MultipliedEventOperation : IEventOperation<MultipliedEvent, EventMetadata, MultipliedEventVerifiedData>
+public class MultipliedEventOperation : IOperation<MultipliedEvent, EventMetadata, MultipliedEventVerifiedData>
 {
     public async Task ExecuteAsync(MessageContainer<MultipliedEvent, EventMetadata> container,
         MultipliedEventVerifiedData data)

@@ -7,17 +7,16 @@ using Microsoft.Extensions.Logging;
 
 namespace Common.DefaultHandlers;
 
-public class AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifiedData, TFailedEvent>(
+public class AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifiedData>(
     IDataFactory<TMessage,
         CommandMetadata, TUnverifiedData, TVerifiedData> _dataFactory,
-    IAuthorizedCommandVerifier<TMessage, TUnverifiedData> _verifier,
-    IPublishingOperation<TMessage, CommandMetadata, TVerifiedData, TFailedEvent> _operation,
+    IAuthorizedMessageVerifier<TMessage, CommandMetadata, TUnverifiedData> _verifier,
+    IOperation<TMessage, CommandMetadata, TVerifiedData> _operation,
     IEventPublisher _eventPublisher,
-    ILogger<AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifiedData, TFailedEvent>> _logger)
+    ILogger<AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifiedData>> _logger)
     : IMessageContainerHandler<TMessage,
         CommandMetadata>
     where TMessage : Message
-    where TFailedEvent : Message
 {
     public async Task HandleAsync(MessageContainer<TMessage, CommandMetadata> container)
     {
@@ -33,7 +32,7 @@ public class AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifiedData, 
             if (!authorizationResult.IsAuthorized)
             {
                 await _eventPublisher.PublishAsync(container,
-                    new AuthorizationFailedMessageHolder(authorizationResult.ErrorMessages, typeof(TFailedEvent)));
+                    new AuthorizationFailedEvent(authorizationResult.ErrorMessages));
                 return;
             }
 
@@ -41,18 +40,18 @@ public class AuthorizedCommandHandler<TMessage, TUnverifiedData, TVerifiedData, 
             if (!validationResult.IsValid)
             {
                 await _eventPublisher.PublishAsync(container,
-                    new ValidationFailedMessageHolder(validationResult.ToDictionarySnakeCase(), typeof(TFailedEvent)));
+                    new ValidationFailedEvent(validationResult.ToDictionarySnakeCase()));
                 return;
             }
 
             var verifiedData = _dataFactory.GetVerifiedData(unverifiedData);
 
-            await _operation.ExecuteAsync(container, verifiedData, _eventPublisher);
+            await _operation.ExecuteAsync(container, verifiedData);
         }
         catch (Exception e)
         {
             _logger.LogError(e.Message);
-            await _eventPublisher.PublishAsync(container, _operation.CreateFailedEvent(container, e));
+            await _eventPublisher.PublishAsync(container, new UnhandledExceptionEvent(e.Message));
         }
     }
 }

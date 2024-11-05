@@ -7,7 +7,8 @@ using GenericHandlers.Commands;
 
 namespace GenericHandlers.CommandHandlers.SubtractCommandHandler;
 
-public class SubtractCommandVerifier : AuthorizedCommandVerifier<SubtractCommand, SubtractCommandUnverifiedData>
+public class
+    SubtractCommandVerifier : AuthorizedMessageVerifier<SubtractCommand, CommandMetadata, SubtractCommandUnverifiedData>
 {
     protected override void AuthorizationRules()
     {

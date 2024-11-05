@@ -13,23 +13,20 @@ namespace Common;
 public static class Registration
 {
     private static readonly Type GenericAuthorizedCommandHandlerType =
-        typeof(AuthorizedCommandHandler<,,,>);
+        typeof(AuthorizedCommandHandler<,,>);
 
     private static readonly Type GenericCommandHandlerType =
-        typeof(CommandHandler<,,,>);
-
-    private static readonly Type GenericPublishingEventHandlerType =
-        typeof(PublishingEventHandler<,,>);
+        typeof(CommandHandler<,,>);
 
     private static readonly Type GenericEventHandlerType =
-        typeof(ConventionalEventHandler<,,>);
+        typeof(EventHandler<,,>);
 
     private static readonly Type GenericMessageOrchestratorType = typeof(MessageContainerOrchestrator<,>);
 
     private static readonly Type MessageContainerHandlerType = typeof(IMessageContainerHandler<,>);
     private static readonly Type DataFactoryType = typeof(IDataFactory<,,,>);
 
-    private static readonly Type AuthorizedCommandVerifierType = typeof(IAuthorizedCommandVerifier<,>);
+    private static readonly Type AuthorizedCommandVerifierType = typeof(IAuthorizedMessageVerifier<,,>);
     private static readonly Type MessageVerifierType = typeof(IMessageVerifier<,,>);
 
     private static readonly IEnumerable<Type> VerifierTypes =
@@ -37,16 +34,7 @@ public static class Registration
         AuthorizedCommandVerifierType, MessageVerifierType
     ];
 
-    private static readonly Type OperationType = typeof(IOperation<,,,>);
-    private static readonly Type PublishingOperationType = typeof(IPublishingOperation<,,,>);
-    private static readonly Type EventOperationType = typeof(IEventOperation<,,>);
-    private static readonly Type EventPublishingOperationType = typeof(IEventPublishingOperation<,,>);
-
-    private static readonly IEnumerable<Type> OperationTypes =
-    [
-        OperationType, PublishingOperationType, EventOperationType,
-        EventPublishingOperationType
-    ];
+    private static readonly Type OperationType = typeof(IOperation<,,>);
 
     public static IServiceCollection AddEventHandlersAndNecessaryWork(this IServiceCollection services,
         params Type[] sourceTypes)
@@ -111,32 +99,20 @@ public static class Registration
         public Type GetGenericHandlerType()
         {
             var genericInterfaces = Interfaces.Select(i => i.GetGenericTypeDefinition()).ToList();
-            if (IsGenericAuthorizedCommandHandlerType(genericInterfaces))
+            if (genericInterfaces.Contains(AuthorizedCommandVerifierType))
             {
                 return GenericAuthorizedCommandHandlerType.MakeGenericType(MessageType, UnverifiedDataType,
-                    VerifiedDataType, FailedEventType);
-            }
-
-            if (IsGenericCommandHandlerType(genericInterfaces))
-            {
-                return GenericCommandHandlerType.MakeGenericType(MessageType, UnverifiedDataType, VerifiedDataType,
-                    FailedEventType);
-            }
-
-            if (IsGenericPublishingEventHandler(genericInterfaces))
-            {
-                return GenericPublishingEventHandlerType.MakeGenericType(MessageType, UnverifiedDataType,
                     VerifiedDataType);
             }
 
-            if (IsGenericEventHandlerType(genericInterfaces))
+            if (MessageMetadataType == typeof(CommandMetadata))
             {
-                return GenericEventHandlerType.MakeGenericType(MessageType, UnverifiedDataType, VerifiedDataType);
+                return GenericCommandHandlerType.MakeGenericType(MessageType, UnverifiedDataType, VerifiedDataType);
             }
 
-            throw new Exception();
-        }
 
+            return GenericEventHandlerType.MakeGenericType(MessageType, UnverifiedDataType, VerifiedDataType);
+        }
 
         private Type MessageType { get; set; }
 
@@ -145,8 +121,6 @@ public static class Registration
         private Type UnverifiedDataType { get; set; }
 
         private Type VerifiedDataType { get; set; }
-
-        private Type FailedEventType { get; set; }
 
         public void SetType(Type type)
         {
@@ -158,35 +132,20 @@ public static class Registration
                 VerifiedDataType = genericArguments.Last();
             }
 
-
-            if (IsAnyOperationInterface(type))
+            if (IsOperationInterface(type))
             {
                 MessageType = genericArguments.First();
                 MessageMetadataType = genericArguments.Skip(1).First();
-                if (IsPublishingOperationInterface(type) || IsOperationInterface(type))
-                    FailedEventType = genericArguments[^1];
             }
         }
     }
 
-    private static bool IsGenericAuthorizedCommandHandlerType(List<Type> interfaces) =>
-        interfaces.Contains(AuthorizedCommandVerifierType) &&
-        interfaces.Contains(PublishingOperationType);
-
-    private static bool IsGenericCommandHandlerType(List<Type> interfaces) =>
-        interfaces.Contains(MessageVerifierType) && interfaces.Contains(PublishingOperationType);
-
-    private static bool IsGenericPublishingEventHandler(List<Type> interfaces) =>
-        interfaces.Contains(MessageVerifierType) && interfaces.Contains(EventPublishingOperationType);
-
-    private static bool IsGenericEventHandlerType(List<Type> interfaces) =>
-        interfaces.Contains(MessageVerifierType) && interfaces.Contains(EventOperationType);
 
     private static bool IsAllowedType(Type type) =>
-        !type.IsAbstract && (IsDataFactory(type) || IsVerifier(type) || IsAnyOperation(type));
+        !type.IsAbstract && (IsDataFactory(type) || IsVerifier(type) || IsOperation(type));
 
     private static bool IsAllowedInterfaceType(Type type) =>
-        IsDataFactoryInterface(type) || IsVerifierInterface(type) || IsAnyOperationInterface(type);
+        IsDataFactoryInterface(type) || IsVerifierInterface(type) || IsOperationInterface(type);
 
     private static bool IsDataFactory(Type type)
     {
@@ -210,7 +169,7 @@ public static class Registration
                VerifierTypes.Contains(interfaceType.GetGenericTypeDefinition());
     }
 
-    private static bool IsAuthorizedCommandVerifierInterface(Type interfaceType)
+    private static bool IsAuthorizedMessageVerifierInterface(Type interfaceType)
     {
         return interfaceType.IsGenericType &&
                interfaceType.GetGenericTypeDefinition() == AuthorizedCommandVerifierType;
@@ -222,21 +181,9 @@ public static class Registration
                interfaceType.GetGenericTypeDefinition() == MessageVerifierType;
     }
 
-    private static bool IsAnyOperation(Type type)
+    private static bool IsOperation(Type type)
     {
-        return type.GetInterfaces().Any(IsAnyOperationInterface);
-    }
-
-    private static bool IsAnyOperationInterface(Type interfaceType)
-    {
-        return interfaceType.IsGenericType &&
-               OperationTypes.Contains(interfaceType.GetGenericTypeDefinition());
-    }
-
-    private static bool IsPublishingOperationInterface(Type interfaceType)
-    {
-        return interfaceType.IsGenericType &&
-               interfaceType.GetGenericTypeDefinition() == PublishingOperationType;
+        return type.GetInterfaces().Any(IsOperationInterface);
     }
 
     private static bool IsOperationInterface(Type interfaceType)

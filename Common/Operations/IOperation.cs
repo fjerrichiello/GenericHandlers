@@ -2,12 +2,9 @@
 
 namespace Common.Operations;
 
-public interface IOperation<TMessage, TMessageMetadata, in TVerifiedData, out TFailedEvent>
+public interface IOperation<TMessage, TMessageMetadata, in TVerifiedData>
     where TMessage : Message
     where TMessageMetadata : MessageMetadata
-    where TFailedEvent : Message
 {
     Task ExecuteAsync(MessageContainer<TMessage, TMessageMetadata> container, TVerifiedData data);
-
-    TFailedEvent CreateFailedEvent(MessageContainer<TMessage, TMessageMetadata> container, Exception e);
 }

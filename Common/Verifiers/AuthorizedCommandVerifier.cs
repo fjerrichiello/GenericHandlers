@@ -1,16 +1,16 @@
-﻿using Common.Helpers;
-using Common.Messaging;
+﻿using Common.Messaging;
 using FluentValidation;
 using FluentValidation.Results;
 
 namespace Common.Verifiers;
 
-public abstract class AuthorizedCommandVerifier<TCommand, TUnverifiedData> :
-    AbstractValidator<MessageVerificationParameters<TCommand, CommandMetadata, TUnverifiedData>>,
-    IAuthorizedCommandVerifier<TCommand, TUnverifiedData>
-    where TCommand : Message
+public abstract class AuthorizedMessageVerifier<TMessage, TMessageMetadata, TUnverifiedData> :
+    AbstractValidator<MessageVerificationParameters<TMessage, TMessageMetadata, TUnverifiedData>>,
+    IAuthorizedMessageVerifier<TMessage, TMessageMetadata, TUnverifiedData>
+    where TMessage : Message
+    where TMessageMetadata : MessageMetadata
 {
-    protected AuthorizedCommandVerifier()
+    protected AuthorizedMessageVerifier()
     {
         RuleSet("Authorize", AuthorizationRules);
         RuleSet("Validate", ValidationRules);
@@ -20,7 +20,7 @@ public abstract class AuthorizedCommandVerifier<TCommand, TUnverifiedData> :
     protected abstract void ValidationRules();
 
     public AuthorizationResult Authorize(
-        MessageVerificationParameters<TCommand, CommandMetadata, TUnverifiedData> parameters)
+        MessageVerificationParameters<TMessage, TMessageMetadata, TUnverifiedData> parameters)
     {
         var authorizationResult = new AuthorizationResult();
         var result = this.Validate(parameters, options => options.IncludeRuleSets("Authorize"));
@@ -33,8 +33,8 @@ public abstract class AuthorizedCommandVerifier<TCommand, TUnverifiedData> :
         return authorizationResult;
     }
 
-    ValidationResult IAuthorizedCommandVerifier<TCommand, TUnverifiedData>.Validate(
-        MessageVerificationParameters<TCommand, CommandMetadata, TUnverifiedData> parameters)
+    ValidationResult IAuthorizedMessageVerifier<TMessage, TMessageMetadata, TUnverifiedData>.Validate(
+        MessageVerificationParameters<TMessage, TMessageMetadata, TUnverifiedData> parameters)
     {
         return this.Validate(parameters, options => options.IncludeRuleSets("Validate"));
     }

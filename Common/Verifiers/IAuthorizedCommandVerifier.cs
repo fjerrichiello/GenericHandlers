@@ -3,11 +3,15 @@ using FluentValidation.Results;
 
 namespace Common.Verifiers;
 
-public interface IAuthorizedCommandVerifier<TCommand, TUnverifiedData>
-    where TCommand : Message
+public interface
+    IAuthorizedMessageVerifier<TMessage, TMessageMetadata, TUnverifiedData> : IMessageVerifier<TMessage,
+    TMessageMetadata,
+    TUnverifiedData>
+    where TMessage : Message
+    where TMessageMetadata : MessageMetadata
 {
     AuthorizationResult Authorize(
-        MessageVerificationParameters<TCommand, CommandMetadata, TUnverifiedData> parameters);
+        MessageVerificationParameters<TMessage, TMessageMetadata, TUnverifiedData> parameters);
 
-    ValidationResult Validate(MessageVerificationParameters<TCommand, CommandMetadata, TUnverifiedData> parameters);
+    ValidationResult Validate(MessageVerificationParameters<TMessage, TMessageMetadata, TUnverifiedData> parameters);
 }
