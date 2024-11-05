@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Common.DefaultHandlers;
 
-public class CommandHandler<TMessage, TUnverifiedData, TVerifiedData>(
+public sealed class CommandHandler<TMessage, TUnverifiedData, TVerifiedData>(
     IDataFactory<TMessage,
         CommandMetadata, TUnverifiedData, TVerifiedData> _dataFactory,
     IMessageVerifier<TMessage, CommandMetadata, TUnverifiedData> _verifier,

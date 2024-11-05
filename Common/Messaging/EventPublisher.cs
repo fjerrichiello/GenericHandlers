@@ -137,7 +137,7 @@ public class EventPublisher : IEventPublisher
         return new RequestEntry
         {
             Source = "SourceName",
-            DetailType = GetEventName(typeof(TMessage)) + "AuthorizationFailedEvent",
+            DetailType = GetDetailType(commandContainer) + "AuthorizationFailedEvent",
             Detail = GetDetail(commandContainer, eventBody),
         };
     }
@@ -150,7 +150,7 @@ public class EventPublisher : IEventPublisher
         return new RequestEntry
         {
             Source = "SourceName",
-            DetailType = GetEventName(typeof(TMessage)) + "ValidationFailedEvent",
+            DetailType = GetDetailType(commandContainer) + "ValidationFailedEvent",
             Detail = GetDetail(commandContainer, eventBody),
         };
     }
@@ -163,7 +163,7 @@ public class EventPublisher : IEventPublisher
         return new RequestEntry
         {
             Source = "SourceName",
-            DetailType = GetEventName(typeof(TMessage)) + "ValidationFailedEvent",
+            DetailType = GetDetailType(eventContainer) + "ValidationFailedEvent",
             Detail = GetDetail(eventContainer, eventBody),
         };
     }
@@ -176,7 +176,7 @@ public class EventPublisher : IEventPublisher
         return new RequestEntry
         {
             Source = "SourceName",
-            DetailType = GetEventName(typeof(TMessage)) + "FailedEvent",
+            DetailType = GetDetailType(commandContainer) + "FailedEvent",
             Detail = GetDetail(commandContainer, eventBody),
         };
     }
@@ -189,20 +189,27 @@ public class EventPublisher : IEventPublisher
         return new RequestEntry
         {
             Source = "SourceName",
-            DetailType = GetEventName(typeof(TMessage)) + "FailedEvent",
+            DetailType = GetDetailType(eventContainer) + "FailedEvent",
             Detail = GetDetail(eventContainer, eventBody),
         };
     }
 
-    private static string GetEventName(Type source)
+    private static string GetDetailType<TMessage>(MessageContainer<TMessage, EventMetadata> eventContainer)
+        where TMessage : Message
     {
-        var name = source.Name.AsSpan();
-        var command = "Command".AsSpan();
+        var name = eventContainer.Message.GetType().Name.AsSpan();
         var @event = "Event".AsSpan();
 
-        return name.EndsWith(command)
-            ? name[..^command.Length].ToString()
-            : name[..^@event.Length].ToString();
+        return name[..^@event.Length].ToString();
+    }
+
+    private static string GetDetailType<TMessage>(MessageContainer<TMessage, CommandMetadata> commandContainer)
+        where TMessage : Message
+    {
+        var name = commandContainer.Message.GetType().Name.AsSpan();
+        var command = "Command".AsSpan();
+
+        return name[..^command.Length].ToString();
     }
 
     private string GetDetail<TMessage, TEvent>(
@@ -239,7 +246,7 @@ public class EventPublisher : IEventPublisher
         return JsonSerializer.Serialize(new
         {
             body = eventBody,
-            tags = GetTags(typeof(TMessage)).Concat(["authorization-failed"]).ToList()
+            tags = GetTags(commandContainer).Concat(["authorization-failed"]).ToList()
         });
     }
 
@@ -251,7 +258,7 @@ public class EventPublisher : IEventPublisher
         return JsonSerializer.Serialize(new
         {
             body = eventBody,
-            tags = GetTags(typeof(TMessage)).Concat(["validation-failed"]).ToList()
+            tags = GetTags(commandContainer).Concat(["validation-failed"]).ToList()
         });
     }
 
@@ -263,7 +270,7 @@ public class EventPublisher : IEventPublisher
         return JsonSerializer.Serialize(new
         {
             body = eventBody,
-            tags = GetTags(typeof(TMessage)).Concat(["validation-failed"]).ToList()
+            tags = GetTags(eventContainer).Concat(["validation-failed"]).ToList()
         });
     }
 
@@ -275,7 +282,7 @@ public class EventPublisher : IEventPublisher
         return JsonSerializer.Serialize(new
         {
             body = eventBody,
-            tags = GetTags(typeof(TMessage)).Concat(["failed"]).ToList()
+            tags = GetTags(commandContainer).Concat(["failed"]).ToList()
         });
     }
 
@@ -287,16 +294,17 @@ public class EventPublisher : IEventPublisher
         return JsonSerializer.Serialize(new
         {
             body = eventBody,
-
-            tags = GetTags(typeof(TMessage)).Concat(["failed"]).ToList()
+            tags = GetTags(eventContainer).Concat(["failed"]).ToList()
         });
     }
 
 
-    private static List<string> GetTags(Type messageType)
+    private static List<string> GetTags<TMessage>(MessageContainer<TMessage, CommandMetadata> commandContainer)
+        where TMessage : Message
     {
         var tags =
-            messageType
+            commandContainer.Message
+                .GetType()
                 .GetCustomAttributes(typeof(FailedMessageTagsAttribute))
                 .OfType<FailedMessageTagsAttribute>()
                 .SelectMany(attribute => attribute.Tags)
@@ -306,7 +314,30 @@ public class EventPublisher : IEventPublisher
         if (tags.Count is 0)
         {
             throw new InvalidOperationException(
-                $"{messageType.Name} does not declare any tags with MessageTagsAttribute.");
+                $"{commandContainer.GetType().Name} does not declare any tags with FailedMessageTagsAttribute.");
+        }
+
+        tags.Add("event");
+
+        return tags.Distinct().ToList();
+    }
+
+    private static List<string> GetTags<TMessage>(MessageContainer<TMessage, EventMetadata> eventContainer)
+        where TMessage : Message
+    {
+        var tags =
+            eventContainer.Message
+                .GetType()
+                .GetCustomAttributes(typeof(FailedMessageTagsAttribute))
+                .OfType<FailedMessageTagsAttribute>()
+                .SelectMany(attribute => attribute.Tags)
+                .Select(tag => tag.ToLowerInvariant())
+                .ToList();
+
+        if (tags.Count is 0)
+        {
+            throw new InvalidOperationException(
+                $"{eventContainer.Message.GetType().Name} does not declare any tags with FailedMessageTagsAttribute.");
         }
 
         tags.Add("event");

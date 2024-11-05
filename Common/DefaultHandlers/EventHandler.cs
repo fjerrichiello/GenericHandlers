@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Common.DefaultHandlers;
 
-public class EventHandler<TMessage, TUnverifiedData, TVerifiedData>(
+public sealed class EventHandler<TMessage, TUnverifiedData, TVerifiedData>(
     IDataFactory<TMessage,
         EventMetadata, TUnverifiedData, TVerifiedData> _dataFactory,
     IMessageVerifier<TMessage, EventMetadata, TUnverifiedData> _verifier,

@@ -1,3 +1,3 @@
 ﻿namespace Common.Messaging.Publishing;
 
-public record AuthorizationFailedEvent(string Reason) : Message;
+public sealed record AuthorizationFailedEvent(string Reason) : Message;
