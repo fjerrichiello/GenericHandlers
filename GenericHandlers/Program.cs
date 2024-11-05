@@ -1,17 +1,35 @@
-using Common;
 using Common.Messaging;
-using GenericHandlers.CommandHandlers.AddCommandHandler;
+using GenericHandlers.Persistence;
+using GenericHandlers.Persistence.Repositories;
+using GenericHandlers.Persistence.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+var services = builder.Services;
+var configuration = builder.Configuration;
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddEventHandlersAndNecessaryWork(typeof(AddCommandOperation));
-// builder.Services.AddEventHandlersWithEventFactoryAndNecessaryWork(typeof(AddCommandOperation));
+// builder.Services.AddEventHandlersAndNecessaryWork(typeof(AddCommandOperation));
+
+// Add Services
+
+services.AddScoped<IBookRepository, BookRepository>();
+
+services.AddScoped<IAuthorRepository, AuthorRepository>();
+
+services.AddScoped<IBookRequestRepository, BookRequestRepository>();
+
+services.AddScoped<IUnitOfWork, UnitOfWork<ApplicationDbContext>>();
+
+
+services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(configuration.GetConnectionString("HandlersDatabase")));
+
 
 var app = builder.Build();
 

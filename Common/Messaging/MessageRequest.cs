@@ -2,4 +2,4 @@
 
 namespace Common.Messaging;
 
-public record MessageRequest(string? Source, string? DetailType, JsonElement? Detail);
+public record MessageRequest(string? DetailType, JsonElement? Detail);

@@ -194,23 +194,20 @@ public class EventPublisher : IEventPublisher
         };
     }
 
-    private static string GetDetailType<TMessage>(MessageContainer<TMessage, EventMetadata> eventContainer)
-        where TMessage : Message
-    {
-        var name = eventContainer.Message.GetType().Name.AsSpan();
-        var @event = "Event".AsSpan();
-
-        return name[..^@event.Length].ToString();
-    }
-
     private static string GetDetailType<TMessage>(MessageContainer<TMessage, CommandMetadata> commandContainer)
         where TMessage : Message
     {
-        var name = commandContainer.Message.GetType().Name.AsSpan();
-        var command = "Command".AsSpan();
-
-        return name[..^command.Length].ToString();
+        var name = commandContainer.Message.GetType().Name;
+        return name[..name.LastIndexOf("Command", StringComparison.Ordinal)];
     }
+
+    private static string GetDetailType<TMessage>(MessageContainer<TMessage, EventMetadata> eventContainer)
+        where TMessage : Message
+    {
+        var name = eventContainer.Message.GetType().Name;
+        return name[..name.LastIndexOf("Event", StringComparison.Ordinal)];
+    }
+
 
     private string GetDetail<TMessage, TEvent>(
         MessageContainer<TMessage, CommandMetadata> commandContainer,

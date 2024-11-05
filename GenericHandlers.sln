@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Events", "Common.Events\Common.Events.csproj", "{A4FF26F8-1050-44F7-ABF7-06776F68AE50}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpSender", "HttpSender\HttpSender.csproj", "{AC141566-6AC5-4B5C-8327-E847E5A7F06B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{A4FF26F8-1050-44F7-ABF7-06776F68AE50}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A4FF26F8-1050-44F7-ABF7-06776F68AE50}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A4FF26F8-1050-44F7-ABF7-06776F68AE50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC141566-6AC5-4B5C-8327-E847E5A7F06B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC141566-6AC5-4B5C-8327-E847E5A7F06B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC141566-6AC5-4B5C-8327-E847E5A7F06B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC141566-6AC5-4B5C-8327-E847E5A7F06B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
