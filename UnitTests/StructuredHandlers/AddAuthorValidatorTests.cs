@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
-using GenericHandlers.Domain.Models;
-using GenericHandlers.StructuredCommandHandlers.Authors.AddAuthor;
+using GenericHandlers.Structured.Domain.Models;
+using GenericHandlers.Structured.CommandHandlers.Authors.AddAuthor;
 
 namespace UnitTests.StructuredHandlers;
 

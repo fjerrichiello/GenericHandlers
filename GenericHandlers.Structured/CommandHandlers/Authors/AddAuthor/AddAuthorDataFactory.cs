@@ -1,9 +1,9 @@
 ﻿using Common.Structured.DataFactory;
 using Common.Structured.Messaging;
-using GenericHandlers.Persistence.Repositories;
-using GenericHandlers.StructuredCommands.Authors;
+using GenericHandlers.Structured.Commands.Authors;
+using GenericHandlers.Structured.Persistence.Repositories;
 
-namespace GenericHandlers.StructuredCommandHandlers.Authors.AddAuthor;
+namespace GenericHandlers.Structured.CommandHandlers.Authors.AddAuthor;
 
 public class AddAuthorDataFactory(IAuthorRepository _authorRepository)
     : IDataFactory<AddAuthorCommand, CommandMetadata, AddAuthorData>

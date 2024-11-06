@@ -1,15 +1,15 @@
-﻿using Common.Events.AddAuthorCommandStructured;
+﻿using Common.Events.Structured.AddAuthorCommand;
 using Common.Structured.Authorization;
 using Common.Structured.DataFactory;
 using Common.Structured.Messaging;
 using Common.Structured.StructuredHandlers;
 using FluentValidation;
-using GenericHandlers.Domain.Models;
-using GenericHandlers.Persistence.Repositories;
-using GenericHandlers.Persistence.UnitOfWork;
-using GenericHandlers.StructuredCommands.Authors;
+using GenericHandlers.Structured.Commands.Authors;
+using GenericHandlers.Structured.Domain.Models;
+using GenericHandlers.Structured.Persistence.Repositories;
+using GenericHandlers.Structured.Persistence.UnitOfWork;
 
-namespace GenericHandlers.StructuredCommandHandlers.Authors.AddAuthor;
+namespace GenericHandlers.Structured.CommandHandlers.Authors.AddAuthor;
 
 public class AddAuthorCommandHandler(
     IDataFactory<AddAuthorCommand, CommandMetadata, AddAuthorData> _dataFactory,

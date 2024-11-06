@@ -1,10 +1,10 @@
-﻿using Common.Events.AddAuthorCommandStructured;
+﻿using Common.Events.Structured.AddAuthorCommand;
 using Common.Structured.Messaging;
-using GenericHandlers.Domain.Models;
-using GenericHandlers.Persistence.Repositories;
-using GenericHandlers.Persistence.UnitOfWork;
-using GenericHandlers.StructuredCommandHandlers.Authors.AddAuthor;
-using GenericHandlers.StructuredCommands.Authors;
+using GenericHandlers.Structured.Domain.Models;
+using GenericHandlers.Structured.Persistence.Repositories;
+using GenericHandlers.Structured.Persistence.UnitOfWork;
+using GenericHandlers.Structured.CommandHandlers.Authors.AddAuthor;
+using GenericHandlers.Structured.Commands.Authors;
 using Moq;
 
 namespace UnitTests.StructuredHandlers;

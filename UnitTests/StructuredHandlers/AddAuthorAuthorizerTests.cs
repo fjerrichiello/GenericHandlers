@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using GenericHandlers.StructuredCommandHandlers.Authors.AddAuthor;
+using GenericHandlers.Structured.CommandHandlers.Authors.AddAuthor;
 
 namespace UnitTests.StructuredHandlers;
 

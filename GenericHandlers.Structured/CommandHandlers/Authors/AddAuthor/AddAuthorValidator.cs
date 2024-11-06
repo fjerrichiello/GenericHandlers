@@ -1,7 +1,7 @@
 ﻿using Common.Structured.Validation;
 using FluentValidation;
 
-namespace GenericHandlers.StructuredCommandHandlers.Authors.AddAuthor;
+namespace GenericHandlers.Structured.CommandHandlers.Authors.AddAuthor;
 
 public class AddAuthorValidator
     : Validator<AddAuthorData>

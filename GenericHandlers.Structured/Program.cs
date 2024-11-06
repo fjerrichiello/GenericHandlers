@@ -1,10 +1,12 @@
-using Common;
-using GenericHandlers;
-using GenericHandlers.CommandHandlers.Authors.AddAuthor;
-using GenericHandlers.Persistence;
-using GenericHandlers.Persistence.Repositories;
-using GenericHandlers.Persistence.UnitOfWork;
+using Common.Structured;
+using GenericHandlers.Structured;
+using GenericHandlers.Structured.CommandHandlers.Authors.AddAuthor;
+using GenericHandlers.Structured.Persistence;
+using GenericHandlers.Structured.Persistence.Repositories;
+using GenericHandlers.Structured.Persistence.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using EventPublisher = Common.Structured.Messaging.EventPublisher;
+using IEventPublisher = Common.Structured.Messaging.IEventPublisher;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -15,10 +17,10 @@ var configuration = builder.Configuration;
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
 
-services.AddEventHandlersAndNecessaryWork(typeof(AddAuthorOperation));
-
-
+services.AddStructuredEventHandlersAndNecessaryWork(typeof(AddAuthorCommandHandler));
 // Add Services
+
+services.AddScoped<IEventPublisher, EventPublisher>();
 
 services.AddScoped<IBookRepository, BookRepository>();
 
@@ -44,7 +46,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.AddGenericEndpoint();
+app.AddStructuredEndpoint();
 
 
 app.Run();

@@ -1,7 +1,7 @@
 ﻿using Common.Structured.Messaging;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GenericHandlers;
+namespace GenericHandlers.Structured;
 
 public static class StructuredEndpoints
 {
