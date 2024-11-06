@@ -22,7 +22,7 @@ public class AddAuthorCommandHandler(
     : AuthorizedCommandHandler<AddAuthorCommand, AddAuthorData>(_dataFactory, _authorizer, _validator, _eventPublisher,
         _logger)
 {
-    protected override async Task Process(MessageContainer<AddAuthorCommand, CommandMetadata> commandContainer,
+    public override async Task Process(MessageContainer<AddAuthorCommand, CommandMetadata> commandContainer,
         AddAuthorData data)
     {
         var author = new Author(Random.Shared.Next(1000000), data.FirstName, data.LastName);

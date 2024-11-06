@@ -64,7 +64,7 @@ public abstract class AuthorizedCommandHandler<TMessage, TData>(
         => _validator.Validate(data);
 
 
-    protected abstract Task Process(MessageContainer<TMessage, CommandMetadata> commandContainer, TData data);
+    public abstract Task Process(MessageContainer<TMessage, CommandMetadata> commandContainer, TData data);
 
 // protected StructuredCommandHandler(IDataFactory<TData> dataFactory,
 //     IValidator<TData> vaildator, IAuthorizer<TData> authorizer, IEventPublisher eventPublisher)
