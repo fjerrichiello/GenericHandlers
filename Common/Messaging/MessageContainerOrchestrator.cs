@@ -13,8 +13,6 @@ public class MessageContainerOrchestrator<TMessage, TMessageMetadata>(
     {
         var container = _mapper.ToMessageContainer(request);
 
-        container.Dump();
-
         await _handler.HandleAsync(container);
     }
 }

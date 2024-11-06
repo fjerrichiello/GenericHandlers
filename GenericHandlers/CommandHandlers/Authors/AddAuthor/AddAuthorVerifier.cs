@@ -5,8 +5,14 @@ using GenericHandlers.Commands.Authors;
 
 namespace GenericHandlers.CommandHandlers.Authors.AddAuthor;
 
-public class AddAuthorVerifier : MessageVerifier<AddAuthorCommand, CommandMetadata, AddAuthorUnverifiedData>
+public class AddAuthorVerifier : AuthorizedMessageVerifier<AddAuthorCommand, CommandMetadata, AddAuthorUnverifiedData>
 {
+    protected override void AuthorizationRules()
+    {
+        RuleFor(parameters => parameters.DataFactoryResult.FirstName)
+            .NotEmpty();
+    }
+
     protected override void ValidationRules()
     {
         RuleFor(parameters => parameters.DataFactoryResult.Author)

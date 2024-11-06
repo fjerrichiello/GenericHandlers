@@ -1,12 +1,18 @@
 using Common;
-using Common.Messaging;
-using Dumpify;
+using Common.Structured;
+using GenericHandlers;
 using GenericHandlers.CommandHandlers.Authors.AddAuthor;
 using GenericHandlers.Persistence;
 using GenericHandlers.Persistence.Repositories;
 using GenericHandlers.Persistence.UnitOfWork;
+using GenericHandlers.StructuredCommandHandlers;
+using GenericHandlers.StructuredCommandHandlers.Authors.AddAuthor;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using EventPublisher = Common.Structured.Messaging.EventPublisher;
+using IEventPublisher = Common.Structured.Messaging.IEventPublisher;
+using IMessageOrchestrator = Common.Messaging.IMessageOrchestrator;
+using MessageRequest = Common.Messaging.MessageRequest;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -14,12 +20,16 @@ var configuration = builder.Configuration;
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+services.AddEndpointsApiExplorer();
+services.AddSwaggerGen();
 
-builder.Services.AddEventHandlersAndNecessaryWork(typeof(AddAuthorOperation));
+services.AddEventHandlersAndNecessaryWork(typeof(AddAuthorOperation));
 
+
+services.AddStructuredEventHandlersAndNecessaryWork(typeof(AddAuthorCommandHandler));
 // Add Services
+
+services.AddScoped<IEventPublisher, EventPublisher>();
 
 services.AddScoped<IBookRepository, BookRepository>();
 
@@ -45,16 +55,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapPost("/command-events",
-        async ([FromBody] MessageRequest request, IServiceProvider _provider) =>
-        {
-            request.Dump();
-            var orchestrator = _provider.GetRequiredKeyedService<IMessageOrchestrator>(request.DetailType);
+app.AddStructuredEndpoint();
+app.AddGenericEndpoint();
 
-            await orchestrator.ProcessAsync(request);
-        })
-    .WithName("TestOrchestrator")
-    .WithOpenApi();
 
 app.Run();
 

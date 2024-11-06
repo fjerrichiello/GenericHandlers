@@ -23,13 +23,13 @@ public sealed class CommandHandler<TMessage, TUnverifiedData, TVerifiedData>(
     {
         try
         {
-            var unverifiedData = await _dataFactory.GetDataAsync(container);
+            var unverifiedData = await _dataFactory.GetUnverifiedDataAsync(container);
 
             var verificationParameters =
                 new MessageVerificationParameters<TMessage, CommandMetadata, TUnverifiedData>(container,
                     unverifiedData);
 
-            var validationResult = _verifier.Validate(verificationParameters);
+            var validationResult = _verifier.ValidateInternal(verificationParameters);
             if (!validationResult.IsValid)
             {
                 await _eventPublisher.PublishValidationFailedAsync(container,

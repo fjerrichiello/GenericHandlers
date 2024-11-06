@@ -1,6 +1,5 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
-using Dumpify;
 using HttpSender;
 using HttpSender.Commands;
 
@@ -11,7 +10,8 @@ JsonSerializerOptions serializerOptions = new()
 var httpClient = new HttpClient(new LoggingHandler(new HttpClientHandler()));
 httpClient.BaseAddress = new Uri("http://localhost:5100");
 
-const string commandEventPath = "/command-events";
+const string genericCommandEventPath = "/generic-command-events";
+const string structuredCommandEventPath = "/structured-command-events";
 
 List<string> authors =
 [
@@ -30,5 +30,5 @@ foreach (var author in authors)
     var command = new AddAuthorCommand(names.First(), names.Last());
     var body = JsonSerializer.SerializeToElement(command, serializerOptions);
     var messageRequest = new MessageRequest(command.GetType().Name, new Detail(body));
-    await httpClient.PostAsJsonAsync(commandEventPath, messageRequest, serializerOptions);
+    await httpClient.PostAsJsonAsync(genericCommandEventPath, messageRequest, serializerOptions);
 }

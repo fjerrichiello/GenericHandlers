@@ -6,7 +6,7 @@ public interface IDataFactory<TMessage, TMessageMetadata, TUnverifiedData, out T
     where TMessage : Message
     where TMessageMetadata : MessageMetadata
 {
-    Task<TUnverifiedData> GetDataAsync(MessageContainer<TMessage, TMessageMetadata> container);
+    Task<TUnverifiedData> GetUnverifiedDataAsync(MessageContainer<TMessage, TMessageMetadata> container);
 
     TVerifiedData GetVerifiedData(TUnverifiedData unverifiedData);
 }

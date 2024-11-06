@@ -18,7 +18,7 @@ public abstract class MessageVerifier<TMessage, TMessageMetadata, TUnverifiedDat
 
     protected abstract void ValidationRules();
 
-    ValidationResult IMessageVerifier<TMessage, TMessageMetadata, TUnverifiedData>.Validate(
+    public ValidationResult ValidateInternal(
         MessageVerificationParameters<TMessage, TMessageMetadata, TUnverifiedData> parameters)
     {
         return this.Validate(parameters, options => options.IncludeRuleSets("Validate"));

@@ -33,7 +33,7 @@ public abstract class AuthorizedMessageVerifier<TMessage, TMessageMetadata, TUnv
         return authorizationResult;
     }
 
-    ValidationResult IAuthorizedMessageVerifier<TMessage, TMessageMetadata, TUnverifiedData>.Validate(
+    public ValidationResult ValidateInternal(
         MessageVerificationParameters<TMessage, TMessageMetadata, TUnverifiedData> parameters)
     {
         return this.Validate(parameters, options => options.IncludeRuleSets("Validate"));

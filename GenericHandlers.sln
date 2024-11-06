@@ -8,6 +8,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Events", "Common.Eve
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpSender", "HttpSender\HttpSender.csproj", "{AC141566-6AC5-4B5C-8327-E847E5A7F06B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Structured", "Common.Structured\Common.Structured.csproj", "{82E183C3-1898-4371-8CCD-20560B7E15FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{DAEADB22-0A5F-4339-ADDA-38C8A9F12603}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +34,13 @@ Global
 		{AC141566-6AC5-4B5C-8327-E847E5A7F06B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AC141566-6AC5-4B5C-8327-E847E5A7F06B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AC141566-6AC5-4B5C-8327-E847E5A7F06B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82E183C3-1898-4371-8CCD-20560B7E15FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82E183C3-1898-4371-8CCD-20560B7E15FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82E183C3-1898-4371-8CCD-20560B7E15FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82E183C3-1898-4371-8CCD-20560B7E15FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAEADB22-0A5F-4339-ADDA-38C8A9F12603}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAEADB22-0A5F-4339-ADDA-38C8A9F12603}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAEADB22-0A5F-4339-ADDA-38C8A9F12603}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAEADB22-0A5F-4339-ADDA-38C8A9F12603}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

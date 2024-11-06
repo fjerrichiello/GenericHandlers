@@ -8,7 +8,7 @@ namespace GenericHandlers.CommandHandlers.Authors.AddAuthor;
 public class AddAuthorDataFactory(IAuthorRepository _authorRepository)
     : IDataFactory<AddAuthorCommand, CommandMetadata, AddAuthorUnverifiedData, AddAuthorVerifiedData>
 {
-    public async Task<AddAuthorUnverifiedData> GetDataAsync(
+    public async Task<AddAuthorUnverifiedData> GetUnverifiedDataAsync(
         MessageContainer<AddAuthorCommand, CommandMetadata> container)
     {
         var author = await _authorRepository.GetAsync(container.Message.FirstName, container.Message.LastName);

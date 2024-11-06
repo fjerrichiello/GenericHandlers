@@ -12,6 +12,4 @@ public interface
 {
     AuthorizationResult Authorize(
         MessageVerificationParameters<TMessage, TMessageMetadata, TUnverifiedData> parameters);
-
-    ValidationResult Validate(MessageVerificationParameters<TMessage, TMessageMetadata, TUnverifiedData> parameters);
 }

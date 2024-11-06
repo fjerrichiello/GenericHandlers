@@ -21,13 +21,13 @@ public sealed class EventHandler<TMessage, TUnverifiedData, TVerifiedData>(
     {
         try
         {
-            var unverifiedData = await _dataFactory.GetDataAsync(container);
+            var unverifiedData = await _dataFactory.GetUnverifiedDataAsync(container);
 
             var verificationParameters =
                 new MessageVerificationParameters<TMessage, EventMetadata, TUnverifiedData>(container,
                     unverifiedData);
 
-            var validationResult = _verifier.Validate(verificationParameters);
+            var validationResult = _verifier.ValidateInternal(verificationParameters);
             if (!validationResult.IsValid)
             {
                 return;
