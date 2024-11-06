@@ -16,7 +16,6 @@ public interface IEventPublisher
         where TSourceEvent : Message
         where TEvent : Message;
 
-
     Task PublishAuthorizationFailedAsync<TCommand>(
         MessageContainer<TCommand, CommandMetadata> commandContainer,
         AuthorizationFailedEvent eventBody)
