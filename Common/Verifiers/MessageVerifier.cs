@@ -4,8 +4,7 @@ using FluentValidation.Results;
 
 namespace Common.Verifiers;
 
-public abstract class MessageVerifier<TMessage, TMessageMetadata, TUnverifiedData
-> :
+public abstract class MessageVerifier<TMessage, TMessageMetadata, TUnverifiedData> :
     AbstractValidator<MessageVerificationParameters<TMessage, TMessageMetadata, TUnverifiedData>>,
     IMessageVerifier<TMessage, TMessageMetadata, TUnverifiedData>
     where TMessage : Message
