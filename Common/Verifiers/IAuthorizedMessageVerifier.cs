@@ -1,5 +1,4 @@
 ﻿using Common.Messaging;
-using FluentValidation.Results;
 
 namespace Common.Verifiers;
 

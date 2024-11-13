@@ -24,7 +24,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\GenericHandlers\GenericHandlers.csproj"/>
-        <ProjectReference Include="..\GenericHandlers.Structured\GenericHandlers.Structured.csproj"/>
     </ItemGroup>
 
 </Project>

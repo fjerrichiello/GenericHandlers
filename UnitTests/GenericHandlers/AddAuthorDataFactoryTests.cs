@@ -1,9 +1,9 @@
 ﻿using Common.Messaging;
 using FluentAssertions;
-using GenericHandlers.Domain.Models;
-using GenericHandlers.Persistence.Repositories;
 using GenericHandlers.CommandHandlers.Authors.AddAuthor;
 using GenericHandlers.Commands.Authors;
+using GenericHandlers.Domain.Models;
+using GenericHandlers.Persistence.Repositories;
 using Moq;
 
 namespace UnitTests.GenericHandlers;

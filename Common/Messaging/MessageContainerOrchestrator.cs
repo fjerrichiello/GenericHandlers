@@ -1,6 +1,4 @@
-﻿using Dumpify;
-
-namespace Common.Messaging;
+﻿namespace Common.Messaging;
 
 public class MessageContainerOrchestrator<TMessage, TMessageMetadata>(
     MessageContainerMapper<TMessage, TMessageMetadata> _mapper,
