@@ -1,6 +1,8 @@
-﻿namespace GenericHandlers.Domain.Models;
+﻿using Common.Models.Authors;
 
-public record Author(int Id, string FirstName, string LastName)
+namespace GenericHandlers.Domain.Models;
+
+public record Author(int Id, string FirstName, string LastName) : IAuthorLike
 {
     public Author(AuthorEntity entity) : this(entity.Id, entity.FirstName, entity.LastName)
     {

@@ -40,6 +40,8 @@ public static class Registration
         params Type[] sourceTypes)
     {
         ValidatorOptions.Global.DisplayNameResolver = (type, member, expression) => member?.Name.ToSnakeCase();
+        ValidatorOptions.Global.PropertyNameResolver = (type, member, expression) => member?.Name.ToSnakeCase();
+        
         services.AddSingleton(typeof(MessageContainerMapper<,>));
 
         var handlers = GetHandlerDetails(sourceTypes);

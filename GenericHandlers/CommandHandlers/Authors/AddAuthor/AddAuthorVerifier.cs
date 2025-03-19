@@ -1,5 +1,6 @@
 ﻿using Common.Messaging;
 using Common.Verifiers;
+using Common.Verifiers.Rules;
 using FluentValidation;
 using GenericHandlers.Commands.Authors;
 
@@ -11,6 +12,9 @@ public class AddAuthorVerifier : AuthorizedMessageVerifier<AddAuthorCommand, Com
     {
         RuleFor(parameters => parameters.DataFactoryResult.FirstName)
             .NotEmpty();
+
+        RuleFor(parameters => parameters)
+            .Must(VerificationRules.HasFirstName<AddAuthorCommand, CommandMetadata, AddAuthorUnverifiedData>());
     }
 
     protected override void ValidationRules()
