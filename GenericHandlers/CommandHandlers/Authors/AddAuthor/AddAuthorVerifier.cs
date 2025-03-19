@@ -14,7 +14,7 @@ public class AddAuthorVerifier : AuthorizedMessageVerifier<AddAuthorCommand, Com
             .NotEmpty();
 
         RuleFor(parameters => parameters)
-            .Must(VerificationRules.HasFirstName<AddAuthorCommand, CommandMetadata, AddAuthorUnverifiedData>());
+            .Must(VerificationRules.HasFirstName);
     }
 
     protected override void ValidationRules()
