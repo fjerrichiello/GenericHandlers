@@ -14,10 +14,8 @@ public class AuthorRepository(ApplicationDbContext _context) : IAuthorRepository
 
     public async Task<Author?> GetAsync(string firstName, string lastName)
     {
-        var entity = await _context.Authors.FirstOrDefaultAsync(x =>
+        return await _context.Authors.Select(e => new Author(e)).FirstOrDefaultAsync(x =>
             x.FirstName == firstName && x.LastName == lastName);
-
-        return entity is null ? null : new Author(entity);
     }
 
 

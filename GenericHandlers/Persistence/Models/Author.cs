@@ -14,6 +14,8 @@ public class Author
         FirstName = firstName;
         LastName = lastName;
     }
+    
+    
 
     [Key]
     public int Id { get; init; }
