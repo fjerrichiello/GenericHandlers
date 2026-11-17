@@ -1,6 +1,7 @@
 using Common;
 using GenericHandlers;
 using GenericHandlers.CommandHandlers.Authors.AddAuthor;
+using GenericHandlers.MessagingPersistence;
 using GenericHandlers.Persistence;
 using GenericHandlers.Persistence.Repositories;
 using GenericHandlers.Persistence.UnitOfWork;
@@ -31,6 +32,11 @@ services.AddScoped<IUnitOfWork, UnitOfWork<ApplicationDbContext>>();
 
 services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(configuration.GetConnectionString("HandlersDatabase")));
+
+services.AddDbContext<ApplicationMessagingDbContext>(options =>
+    options.UseNpgsql(configuration.GetConnectionString("MessagingDatabase")));
+
+services.AddMessagingPersistence<ApplicationMessagingDbContext, MessagingUnitOfWork>();
 
 
 var app = builder.Build();

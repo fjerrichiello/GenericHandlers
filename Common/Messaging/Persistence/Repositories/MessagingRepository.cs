@@ -1,10 +1,10 @@
-﻿using Common.Messaging.Persistence.Models;
+using Common.Messaging.Persistence.Models;
 
 namespace Common.Messaging.Persistence.Repositories;
 
-public class MessagingRepository<TContext>(MessagingContext<TContext> _context)
+public class MessagingRepository<TContext>(TContext _context)
     : IMessagingRepository
-    where TContext : Microsoft.EntityFrameworkCore.DbContext
+    where TContext : MessagingContext<TContext>
 {
     public void AddPublishedEvent(PublishedEvent publishedEvent)
     {

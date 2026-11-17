@@ -1,86 +1,56 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Text.Json;
 using Common.Messaging.Publishing;
-using Dumpify;
+using Common.Messaging.Persistence;
+using Common.Messaging.Persistence.Models;
+using Common.Transactions;
+using Microsoft.Extensions.Logging;
 
 namespace Common.Messaging;
 
-public class EventPublisher : IEventPublisher
+public class EventPublisher(
+    IEventBridgeClient _eventBridgeClient,
+    ITransaction<PublishedEventRecorder> _transaction,
+    ILogger<EventPublisher> _logger) : IEventPublisher
 {
     public async Task PublishAsync<TCommand, TEvent>(MessageContainer<TCommand, CommandMetadata> commandContainer,
         IEnumerable<TEvent> eventBodies) where TCommand : Message where TEvent : Message
     {
-        var request = new PutEventsRequest()
-        {
-            Entries = GetEntries(commandContainer, eventBodies)
-        };
-
-        request.Dump();
-        await Task.Delay(250);
+        await PublishEntriesAsync(commandContainer, GetEntries(commandContainer, eventBodies));
     }
 
     public async Task PublishAsync<TSourceEvent, TEvent>(MessageContainer<TSourceEvent, EventMetadata> eventContainer,
         IEnumerable<TEvent> eventBodies) where TSourceEvent : Message where TEvent : Message
     {
-        var request = new PutEventsRequest()
-        {
-            Entries = GetEntries(eventContainer, eventBodies)
-        };
-
-        request.Dump();
-        await Task.Delay(250);
+        await PublishEntriesAsync(eventContainer, GetEntries(eventContainer, eventBodies));
     }
 
     public async Task PublishAuthorizationFailedAsync<TCommand>(
         MessageContainer<TCommand, CommandMetadata> commandContainer, AuthorizationFailedEvent eventBody)
         where TCommand : Message
     {
-        var request = new PutEventsRequest()
-        {
-            Entries = [GetEntry(commandContainer, eventBody)]
-        };
-
-        request.Dump();
-        await Task.Delay(250);
+        await PublishEntriesAsync(commandContainer, [GetEntry(commandContainer, eventBody)]);
     }
 
     public async Task PublishValidationFailedAsync<TCommand>(
         MessageContainer<TCommand, CommandMetadata> commandContainer, ValidationFailedEvent eventBody)
         where TCommand : Message
     {
-        var request = new PutEventsRequest()
-        {
-            Entries = [GetEntry(commandContainer, eventBody)]
-        };
-
-        request.Dump();
-        await Task.Delay(250);
+        await PublishEntriesAsync(commandContainer, [GetEntry(commandContainer, eventBody)]);
     }
 
     public async Task PublishValidationFailedAsync<TSourceEvent>(
         MessageContainer<TSourceEvent, EventMetadata> eventContainer, ValidationFailedEvent eventBody)
         where TSourceEvent : Message
     {
-        var request = new PutEventsRequest()
-        {
-            Entries = [GetEntry(eventContainer, eventBody)]
-        };
-
-        request.Dump();
-        await Task.Delay(250);
+        await PublishEntriesAsync(eventContainer, [GetEntry(eventContainer, eventBody)]);
     }
 
     public async Task PublishUnhandledExceptionAsync<TCommand>(
         MessageContainer<TCommand, CommandMetadata> commandContainer, UnhandledExceptionEvent eventBody)
         where TCommand : Message
     {
-        var request = new PutEventsRequest()
-        {
-            Entries = [GetEntry(commandContainer, eventBody)]
-        };
-
-        request.Dump();
-        await Task.Delay(250);
+        await PublishEntriesAsync(commandContainer, [GetEntry(commandContainer, eventBody)]);
     }
 
 
@@ -88,15 +58,68 @@ public class EventPublisher : IEventPublisher
         MessageContainer<TSourceEvent, EventMetadata> eventContainer, UnhandledExceptionEvent eventBody)
         where TSourceEvent : Message
     {
-        var request = new PutEventsRequest()
-        {
-            Entries = [GetEntry(eventContainer, eventBody)]
-        };
-
-        request.Dump();
-        await Task.Delay(250);
+        await PublishEntriesAsync(eventContainer, [GetEntry(eventContainer, eventBody)]);
     }
 
+
+    /// <summary>
+    /// Sends the entries to EventBridge (in batches of the PutEvents limit) and stores every
+    /// entry that EventBridge accepted as a <see cref="PublishedEvent"/>. Results come back in
+    /// the same order as the request entries, so they are matched by position. Each batch is
+    /// stored in its own transaction, which completes the messaging unit of work once.
+    /// </summary>
+    private async Task PublishEntriesAsync<TMessage, TMetadata>(
+        MessageContainer<TMessage, TMetadata> sourceContainer,
+        List<RequestEntry> entries)
+        where TMessage : Message
+        where TMetadata : MessageMetadata
+    {
+        var sourceType = sourceContainer.Message.GetType().Name;
+
+        foreach (var batch in entries.Chunk(MockEventBridgeClient.MaxEntriesPerRequest))
+        {
+            var response = await _eventBridgeClient.PutEventsAsync(new PutEventsRequest
+            {
+                Entries = batch.ToList()
+            });
+
+            var now = DateTimeOffset.UtcNow;
+            var publishedEvents = new List<PublishedEvent>();
+
+            foreach (var (requestEntry, resultEntry) in batch.Zip(response.Entries))
+            {
+                if (!resultEntry.IsSuccess)
+                {
+                    _logger.LogError(
+                        "Failed to publish {DetailType} for {SourceType}: {ErrorCode} {ErrorMessage}",
+                        requestEntry.DetailType, sourceType, resultEntry.ErrorCode, resultEntry.ErrorMessage);
+                    continue;
+                }
+
+                using var payload = JsonDocument.Parse(requestEntry.Detail);
+
+                publishedEvents.Add(new PublishedEvent
+                {
+                    Id = Guid.TryParse(resultEntry.EventId, out var eventId) ? eventId : Guid.NewGuid(),
+                    Timestamp = now,
+                    SystemTimestamp = now,
+                    MessageType = requestEntry.DetailType,
+                    Payload = payload.RootElement.Clone(),
+                    CommandType = sourceType,
+                    // TODO: no message id is carried in MessageMetadata yet, so CommandId stays Guid.Empty.
+                });
+            }
+
+            if (publishedEvents.Count is 0)
+            {
+                continue;
+            }
+
+            await _transaction.ExecuteAsync(
+                recorder => recorder.RecordAsync(publishedEvents),
+                sourceContainer);
+        }
+    }
 
     private List<RequestEntry> GetEntries<TMessage, TEvent>(
         MessageContainer<TMessage, CommandMetadata> commandContainer,

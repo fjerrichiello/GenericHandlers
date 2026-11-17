@@ -10,11 +10,7 @@ public class AddAuthorVerifier : AuthorizedMessageVerifier<AddAuthorCommand, Com
 {
     protected override void AuthorizationRules()
     {
-        RuleFor(parameters => parameters.DataFactoryResult.FirstName)
-            .NotEmpty();
-
-        RuleFor(parameters => parameters)
-            .Must(VerificationRules.HasFirstName);
+        
     }
 
     protected override void ValidationRules()

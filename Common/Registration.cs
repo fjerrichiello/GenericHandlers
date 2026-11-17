@@ -1,8 +1,12 @@
-﻿using Common.DataFactory;
+using Common.DataFactory;
 using Common.DefaultHandlers;
 using Common.Helpers;
 using Common.Messaging;
+using Common.Messaging.Persistence;
+using Common.Messaging.Persistence.Repositories;
+using Common.Messaging.Publishing;
 using Common.Operations;
+using Common.Transactions;
 using Common.Verifiers;
 using Dumpify;
 using FluentValidation;
@@ -52,7 +56,26 @@ public static class Registration
             RegisterHandlerServices(services, handler);
         }
 
+        services.AddScoped<IMessageMetadataAccessor, MessageMetadataAccessor>();
+        services.AddScoped(typeof(ITransaction<>), typeof(Transaction<>));
+
+        services.AddScoped<IEventBridgeClient, MockEventBridgeClient>();
         services.AddScoped<IEventPublisher, EventPublisher>();
+        return services;
+    }
+
+    /// <summary>
+    /// Registers the messaging repository, unit of work and published-event recorder against the
+    /// app's messaging DbContext. The DbContext itself is registered by the app (it owns the
+    /// provider and connection string).
+    /// </summary>
+    public static IServiceCollection AddMessagingPersistence<TContext, TUnitOfWork>(this IServiceCollection services)
+        where TContext : MessagingContext<TContext>
+        where TUnitOfWork : class, IMessagingUnitOfWork
+    {
+        services.AddScoped<IMessagingRepository, MessagingRepository<TContext>>();
+        services.AddScoped<IMessagingUnitOfWork, TUnitOfWork>();
+        services.AddScoped<PublishedEventRecorder>();
         return services;
     }
 

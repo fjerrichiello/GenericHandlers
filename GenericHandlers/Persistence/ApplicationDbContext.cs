@@ -11,7 +11,7 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<BookRequestEntity> BookRequests { get; set; } = null!;
 
     public ApplicationDbContext(
-        DbContextOptions options) : base(options)
+        DbContextOptions<ApplicationDbContext> options) : base(options)
     {
     }
 

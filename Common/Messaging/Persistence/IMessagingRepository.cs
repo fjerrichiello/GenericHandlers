@@ -1,4 +1,4 @@
-﻿using Common.Messaging.Persistence.Models;
+using Common.Messaging.Persistence.Models;
 
 namespace Common.Messaging.Persistence;
 
